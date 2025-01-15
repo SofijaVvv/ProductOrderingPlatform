@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Product Image</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        input, button {
+            margin: 10px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+<h1>Add Product</h1>
+
+<form id="productForm">
+    <label for="name">Product Name</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="image">Product Image</label>
+    <input type="file" id="image" name="image" accept="image/*" required>
+
+    <label for="brand">Brand</label>
+    <input type="text" id="brand" name="brand" required>
+
+    <label for="price">Price</label>
+    <input type="number" id="price" name="price" required>
+
+    <label for="category">Category</label>
+    <input type="text" id="category" name="category" required>
+
+    <button type="submit">Submit</button>
+</form>
+
+<h2>Base64 Encoded Image:</h2>
+<textarea id="base64Image" rows="5" cols="60" readonly></textarea>
+
+<div id="response"></div>
+
+<script>
+    const form = document.getElementById("productForm");
+    const imageInput = document.getElementById("image");
+    const base64Image = document.getElementById("base64Image");
+
+    // Convert the image to Base64 when selected
+    imageInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                base64Image.value = reader.result.split(',')[1]; // Get Base64 without the prefix
+            };
+            reader.readAsDataURL(file);  // Read the file as a data URL
+        }
+    });
+
+    // Submit the form data
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const name = document.getElementById("name").value;
+        const image = base64Image.value;
+        const brand = document.getElementById("brand").value;
+        const price = document.getElementById("price").value;
+        const category = document.getElementById("category").value;
+
+        const productData = {
+            name: name,
+            image: image,
+            brand: brand,
+            price: parseFloat(price),
+            category: category
+        };
+
+        try {
+            const response = await fetch("http://localhost:5121/api/Product", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(productData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                document.getElementById("response").textContent = "Product added successfully!";
+            } else {
+                throw new Error("Failed to add product");
+            }
+        } catch (error) {
+            document.getElementById("response").textContent = "Error: " + error.message;
+        }
+    });
+</script>
+</body>
+</html>
