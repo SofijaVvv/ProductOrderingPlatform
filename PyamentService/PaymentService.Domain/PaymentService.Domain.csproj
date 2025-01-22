@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PaymentService.Model\PaymentService.Model.csproj" />
+      <ProjectReference Include="..\PaymentService.Repository\PaymentService.Repository.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="RabbitMQ.Client" Version="6.0.0" />
+      <PackageReference Include="Stripe.net" Version="47.2.0" />
+    </ItemGroup>
+
+</Project>

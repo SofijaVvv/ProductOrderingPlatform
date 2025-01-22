@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Api", "PaymentService.Api\PaymentService.Api.csproj", "{962490FA-8558-4550-BB61-C07ADF64C552}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Repository", "PaymentService.Repository\PaymentService.Repository.csproj", "{AB7655F6-6F38-4284-85C4-C6AB55ACA8D7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Model", "PaymentService.Model\PaymentService.Model.csproj", "{293CD733-5D80-43FD-A8B3-A039AED3D2B7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Domain", "PaymentService.Domain\PaymentService.Domain.csproj", "{6CDEF6BF-0EBD-49D6-BE14-B69A51042E05}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{962490FA-8558-4550-BB61-C07ADF64C552}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{962490FA-8558-4550-BB61-C07ADF64C552}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{962490FA-8558-4550-BB61-C07ADF64C552}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{962490FA-8558-4550-BB61-C07ADF64C552}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB7655F6-6F38-4284-85C4-C6AB55ACA8D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB7655F6-6F38-4284-85C4-C6AB55ACA8D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB7655F6-6F38-4284-85C4-C6AB55ACA8D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB7655F6-6F38-4284-85C4-C6AB55ACA8D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{293CD733-5D80-43FD-A8B3-A039AED3D2B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{293CD733-5D80-43FD-A8B3-A039AED3D2B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{293CD733-5D80-43FD-A8B3-A039AED3D2B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{293CD733-5D80-43FD-A8B3-A039AED3D2B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CDEF6BF-0EBD-49D6-BE14-B69A51042E05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CDEF6BF-0EBD-49D6-BE14-B69A51042E05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CDEF6BF-0EBD-49D6-BE14-B69A51042E05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CDEF6BF-0EBD-49D6-BE14-B69A51042E05}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
