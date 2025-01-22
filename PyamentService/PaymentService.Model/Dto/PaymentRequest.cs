@@ -10,5 +10,4 @@ public class PaymentRequest
 
 	public int? OrderId { get; set; }
 
-	public Dictionary<string, string>? Metadata { get; set; }
 }

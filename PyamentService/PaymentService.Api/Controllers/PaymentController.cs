@@ -45,6 +45,13 @@ public class PaymentController : ControllerBase
 		return CreatedAtAction(nameof(GetPaymentById), new { id = payment.Id }, payment.ToResponse());
 	}
 
+	[HttpPost("Refund")]
+	public async Task<IActionResult> Refund(string paymentIntentId, decimal amount)
+	{
+			var refund = await _paymentDomain.RefundAsync(paymentIntentId, amount);
+			return Ok(new { Message = "Refund successful", Refund = refund });
+	}
+
 
 	[HttpDelete("{id}")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]

@@ -6,7 +6,6 @@ using PaymentService.Model.Extenetions;
 using PaymentService.Model.Models;
 using PaymentService.Repository.Interface;
 using Stripe;
-using PaymentService.Model.Enum;
 using PaymentMethod = PaymentService.Model.Enum.PaymentMethod;
 
 namespace PaymentService.Domain.Domain;
@@ -38,22 +37,31 @@ public class PaymentDomain : IPaymentDomain
 
 	public async Task<Payment> AddAsync(PaymentRequest paymentRequest)
 	{
-		var stripePaymentMethod = MapPaymentMethodToStripe(paymentRequest.PaymentMethod);
+		var stripePaymentMethod = MapPaymentMethodTypeToStripe(paymentRequest.PaymentMethod);
+		var testPaymentMethod = GetTestPaymentMethod(paymentRequest.PaymentMethod);
 		var options = new PaymentIntentCreateOptions
 		{
-			Amount = (long)(paymentRequest.Amount * 100), // Stripe expects the amount in cents
-			Currency = "usd",  // Set your currency, e.g., USD
-			PaymentMethodTypes = new List<string> { stripePaymentMethod },  // Assuming card payments
-			Metadata = new Dictionary<string, string>
-			{
-				{ "orderId", paymentRequest.OrderId.ToString() }
-			},
+			Amount = (long)(paymentRequest.Amount * 100),
+			Currency = "usd",
+			PaymentMethodTypes = new List<string> { stripePaymentMethod }
 		};
 
-		var service = new PaymentIntentService();
+		PaymentIntent paymentIntent;
+
 		try
 		{
-			await service.CreateAsync(options);
+			var service = new PaymentIntentService();
+			paymentIntent = await service.CreateAsync(options);
+
+			paymentIntent = await service.ConfirmAsync(paymentIntent.Id, new PaymentIntentConfirmOptions
+			{
+				PaymentMethod = testPaymentMethod
+			});
+
+			if (paymentIntent.Status != "succeeded")
+			{
+				throw new Exception("Payment confirmation failed");
+			}
 		}
 		catch (StripeException ex)
 		{
@@ -73,18 +81,58 @@ public class PaymentDomain : IPaymentDomain
 		return payment;
 	}
 
-	private string MapPaymentMethodToStripe(PaymentMethod paymentMethod)
+	private string MapPaymentMethodTypeToStripe(PaymentMethod paymentMethod)
 	{
 		switch (paymentMethod)
 		{
 			case PaymentMethod.CreditCard:
 				return "card";
 			case PaymentMethod.BackTransfer:
-				return "bank_transfer";
+				return "bank";
 			default:
 				throw new Exception($"Unsupported payment method: {paymentMethod}");
 		}
 	}
+
+	private string GetTestPaymentMethod(PaymentMethod paymentMethod)
+	{
+		return paymentMethod switch
+		{
+			PaymentMethod.CreditCard => "pm_card_visa",
+			PaymentMethod.BackTransfer => "pm_bank_transfer",
+			_ => throw new Exception($"Unsupported test payment method: {paymentMethod}")
+		};
+	}
+
+	public async Task<Refund> RefundAsync(string paymentIntentId, decimal amount )
+	{
+		var refundOptions = new RefundCreateOptions
+		{
+			PaymentIntent = paymentIntentId,
+		};
+
+		if (amount > 0)
+		{
+			refundOptions.Amount = (long)(amount * 100);
+		}
+
+		var refundService = new RefundService();
+
+		try
+		{
+			var refund = await refundService.CreateAsync(refundOptions);
+			_logger.LogInformation("Refund created successfully for PaymentIntent: {PaymentIntentId}", paymentIntentId);
+			return refund;
+		}
+		catch (StripeException ex)
+		{
+			_logger.LogError("Stripe refund error: {ErrorMessage}", ex.Message);
+			_logger.LogError("Stripe error details: {ErrorDetails}", ex.StackTrace);
+			throw new Exception($"Refund creation failed: {ex.Message}", ex);
+		}
+	}
+
+
 
 	public async Task<bool> DeleteAsync(int id)
 	{
