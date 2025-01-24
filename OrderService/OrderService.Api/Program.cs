@@ -1,15 +1,37 @@
+using Microsoft.EntityFrameworkCore;
+using OrderService.Domain.Domain;
+using OrderService.Domain.Interface;
+using OrderService.Repository.Context;
+using OrderService.Repository.Interface;
+using OrderService.Repository.Repository;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var connectionString = builder.Configuration.GetConnectionString("ConnectionDefault")
+                       ?? throw new Exception("Connection string 'ConnectionDefault' is not configured or is missing.");
+var mySqlVersion = ServerVersion.AutoDetect(connectionString);
+
+builder.Services.AddDbContext<ApplicationDbContext>(options => { options.UseMySql(connectionString, mySqlVersion); });
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+
+builder.Services.AddScoped<ICustomerDomain, CustomerDomain>();
+builder.Services.AddScoped<IOrderDomain, OrderDomain>();
+builder.Services.AddScoped<IOrderItemDomain, OrderItemDomain>();
+builder.Services.AddLogging();
+
 var app = builder.Build();
-//
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
