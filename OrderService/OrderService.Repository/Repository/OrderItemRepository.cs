@@ -32,6 +32,12 @@ public class OrderItemRepository : GenericRepository<OrderItem>, IOrderItemRepos
 		return orderItem;
 	}
 
+	public async Task<List<OrderItem>> GetByOrderIdAsync(int orderId)
+	{
+		return await _context.OrderItems
+			.Where(o => o.OrderId == orderId)
+			.ToListAsync();
+	}
 
 	public override async Task<List<OrderItem>> GetAllAsync()
 	{

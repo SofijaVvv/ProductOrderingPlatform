@@ -8,4 +8,5 @@ public class OrderItemResponse
 	public int Quantity { get; set; }
 	public decimal Price { get; set; }
 	public DateTime CreatedAt { get; set; }
+	public ProductDto Product { get; set; }
 }

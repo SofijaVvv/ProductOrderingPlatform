@@ -10,14 +10,17 @@ public class OrderDomain : IOrderDomain
 {
 	private readonly IUnitOfWork _unitOfWork;
 	private readonly IOrderRepository _orderRepository;
+	private readonly IOrderItemRepository _orderItemRepository;
 	private readonly ILogger<OrderDomain> _logger;
 
 	public OrderDomain(IUnitOfWork unitOfWork,
-		IOrderRepository orderRepository, ILogger<OrderDomain> logger)
+		IOrderRepository orderRepository, ILogger<OrderDomain> logger,
+	IOrderItemRepository orderItemRepository)
 	{
 		_unitOfWork = unitOfWork;
 		_orderRepository = orderRepository;
 		_logger = logger;
+		_orderItemRepository = orderItemRepository;
 	}
 
 	public async Task<List<Order>> GetAllAsync()
@@ -60,5 +63,17 @@ public class OrderDomain : IOrderDomain
 
 		await _orderRepository.DeleteAsync(id);
 		return true;
+	}
+
+	public async Task UpdateOrderAmount(int orderId)
+	{
+		var order = await _orderRepository.GetByIdAsync(orderId);
+		if (order == null) throw new Exception("Order not found");
+
+		var orderItems = await _orderItemRepository.GetByOrderIdAsync(orderId);
+		order.Amount = orderItems.Sum(item => item.Price * item.Quantity);
+
+		_orderRepository.Update(order);
+		await _unitOfWork.SaveAsync();
 	}
 }

@@ -10,4 +10,6 @@ public interface IOrderDomain
 	Task<Order> AddAsync(Order order);
 	Task Update(int orderId, UpdateOrderRequest updateOrderRequest);
 	Task<bool> DeleteAsync(int id);
+
+	Task UpdateOrderAmount(int orderId);
 }

@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Repository", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Domain", "OrderService.Domain\OrderService.Domain.csproj", "{61451F14-7DAF-4673-8116-3D312B005274}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Service", "OrderService.Service\OrderService.Service.csproj", "{1984FB38-268B-4CB4-B0E2-D48B2F308119}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{61451F14-7DAF-4673-8116-3D312B005274}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{61451F14-7DAF-4673-8116-3D312B005274}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{61451F14-7DAF-4673-8116-3D312B005274}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1984FB38-268B-4CB4-B0E2-D48B2F308119}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1984FB38-268B-4CB4-B0E2-D48B2F308119}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1984FB38-268B-4CB4-B0E2-D48B2F308119}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1984FB38-268B-4CB4-B0E2-D48B2F308119}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Logging;
 using OrderService.Domain.Interface;
 using OrderService.Model.Dto;
+using OrderService.Model.Extentions;
 using OrderService.Model.Models;
 using OrderService.Repository.Interface;
+using OrderService.Service.Interface;
 
 namespace OrderService.Domain.Domain;
 
@@ -11,34 +13,92 @@ public class OrderItemDomain : IOrderItemDomain
 
 	private readonly IUnitOfWork _unitOfWork;
 	private readonly IOrderItemRepository _orderItemRepository;
+	private readonly IProductService _productService;
+	private readonly IOrderDomain _orderDomain;
 	private readonly ILogger<OrderItemDomain> _logger;
 
 	public OrderItemDomain(IUnitOfWork unitOfWork,
-		IOrderItemRepository orderItemRepository, ILogger<OrderItemDomain> logger)
+		IOrderItemRepository orderItemRepository,
+		ILogger<OrderItemDomain> logger,
+		IProductService productService,
+		IOrderDomain orderDomain)
 	{
 		_orderItemRepository = orderItemRepository;
 		_unitOfWork = unitOfWork;
+		_productService = productService;
+		_orderDomain = orderDomain;
 		_logger = logger;
 	}
 
-	public async Task<List<OrderItem>> GetAllAsync()
+	public async Task<List<OrderItemResponse>> GetAllAsync()
 	{
-		return await _orderItemRepository.GetAllAsync();
+		var orderItems = await _orderItemRepository.GetAllAsync();
+		var productIds = orderItems.Select(oi => oi.ProductId).Distinct().ToList();
+
+		var productMapping = new Dictionary<string, ProductDto>();
+		foreach (var productId in productIds)
+		{
+			var product = await _productService.GetProductByIdAsync(productId);
+			if (product != null)
+			{
+				productMapping[productId] = product;
+			}
+		}
+
+		return orderItems.ToResponse(productMapping);
 	}
 
-	public async Task<OrderItem> GetByIdAsync(int id)
+	public async Task<OrderItemResponse> GetByIdAsync(int id)
 	{
 		var orderItem = await _orderItemRepository.GetByIdAsync(id);
 		if (orderItem == null) throw new Exception("orderItem not found");
 
-		return orderItem;
+		var product = await _productService.GetProductByIdAsync(orderItem.ProductId);
+		if (product == null) throw new Exception("Product not found");
+
+
+		var orderItemResponse = orderItem.ToResponse(new ProductDto
+		{
+			Id = product.Id,
+			Name = product.Name,
+			Price = product.Price,
+			Category = product.Category
+		});
+
+
+		return orderItemResponse;
 	}
 
-	public async Task<OrderItem> AddAsync(OrderItem orderItem)
+	public async Task<OrderItemResponse> AddAsync(OrderItemRequest orderItemRequest)
 	{
-		_orderItemRepository.AddAsync(orderItem);
+		var product = await _productService.GetProductByIdAsync(orderItemRequest.ProductId);
+		if (product == null)
+		{
+			throw new Exception($"Product with ID {orderItemRequest.ProductId} not found.");
+		}
+
+		OrderItem orderItem = orderItemRequest.ToOrderItem();
+
+		orderItem.CreatedAt = DateTime.UtcNow;
+		orderItem.Price = orderItem.Quantity * product.Price; // Set the price here
+
+		var orderItemResponse = orderItem.ToResponse(new ProductDto
+		{
+			Id = product.Id,
+			Name = product.Name,
+			Price = product.Price,
+			Category = product.Category
+		});
+
+		orderItemResponse.Price = orderItem.Price; // Use the updated price
+
+		 _orderItemRepository.AddAsync(orderItem);
+
+		 await _orderDomain.UpdateOrderAmount(orderItem.OrderId);
+
 		await _unitOfWork.SaveAsync();
-		return orderItem;
+
+		return orderItemResponse;
 	}
 
 	public async Task Update(int orderItemId, UpdateOrderItemRequest updateOrderItemRequest)
@@ -46,13 +106,23 @@ public class OrderItemDomain : IOrderItemDomain
 		var orderItem = await _orderItemRepository.GetByIdAsync(orderItemId);
 		if (orderItem == null) throw new Exception("orderItem not found");
 
+		var product = await _productService.GetProductByIdAsync(updateOrderItemRequest.ProductId);
+		if (product == null)
+		{
+			_logger.LogError("Product with ID {ProductId} not found", updateOrderItemRequest.ProductId);
+			throw new Exception("Product not found");
+		}
+
 		orderItem.OrderId = updateOrderItemRequest.OrderId;
 		orderItem.ProductId = updateOrderItemRequest.ProductId;
 		orderItem.Quantity = updateOrderItemRequest.Quantity;
-		orderItem.Price = updateOrderItemRequest.Price;
+		orderItem.Price = updateOrderItemRequest.Quantity * product.Price;
 
 		_orderItemRepository.Update(orderItem);
+		await _orderDomain.UpdateOrderAmount(orderItem.OrderId);
 		await _unitOfWork.SaveAsync();
+
+
 	}
 
 	public async Task<bool> DeleteAsync(int id)
@@ -61,6 +131,13 @@ public class OrderItemDomain : IOrderItemDomain
 		if (orderItem == null) throw new Exception("orderItem not found");
 
 		await _orderItemRepository.DeleteAsync(id);
+		await _unitOfWork.SaveAsync();
+
+		await _orderDomain.UpdateOrderAmount(orderItem.OrderId);
+
 		return true;
 	}
+
+
+
 }

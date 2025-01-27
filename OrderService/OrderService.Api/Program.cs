@@ -4,6 +4,8 @@ using OrderService.Domain.Interface;
 using OrderService.Repository.Context;
 using OrderService.Repository.Interface;
 using OrderService.Repository.Repository;
+using OrderService.Service.Interface;
+using OrderService.Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,8 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerDomain, CustomerDomain>();
 builder.Services.AddScoped<IOrderDomain, OrderDomain>();
 builder.Services.AddScoped<IOrderItemDomain, OrderItemDomain>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddHttpClient();
 builder.Services.AddLogging();
 
 var app = builder.Build();

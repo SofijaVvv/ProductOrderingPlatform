@@ -14,12 +14,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\OrderService.Domain\OrderService.Domain.csproj" />
       <ProjectReference Include="..\OrderService.Repository\OrderService.Repository.csproj" />
+      <ProjectReference Include="..\OrderService.Service\OrderService.Service.csproj" />
     </ItemGroup>
 
 </Project>

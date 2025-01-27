@@ -12,12 +12,11 @@ public static class OrderItemExtentions
 			OrderId = request.OrderId,
 			ProductId = request.ProductId,
 			Quantity = request.Quantity,
-			Price = request.Price
 		};
 
 	}
 
-	public static OrderItemResponse ToResponse(this OrderItem response)
+	public static OrderItemResponse ToResponse(this OrderItem response, ProductDto product)
 	{
 		return new OrderItemResponse
 		{
@@ -26,13 +25,28 @@ public static class OrderItemExtentions
 			ProductId = response.ProductId,
 			Quantity = response.Quantity,
 			Price = response.Price,
-			CreatedAt = response.CreatedAt
+			CreatedAt = response.CreatedAt,
+			Product = new ProductDto
+			{
+				Id = product.Id,
+				Name = product.Name,
+				Price = product.Price
+			}
 		};
 
 	}
 
-	public static List<OrderItemResponse> ToResponse(this List<OrderItem> response)
+	public static List<OrderItemResponse> ToResponse(this List<OrderItem> orderItems, Dictionary<string, ProductDto> productMapping)
 	{
-		return response.Select(orderItem => orderItem.ToResponse()).ToList();
+		return orderItems.Select(orderItem =>
+		{
+			if (productMapping.TryGetValue(orderItem.ProductId, out var product))
+			{
+				return orderItem.ToResponse(product);
+			}
+			throw new Exception($"Product with ID {orderItem.ProductId} not found in product mapping.");
+		}).ToList();
 	}
+
+
 }
