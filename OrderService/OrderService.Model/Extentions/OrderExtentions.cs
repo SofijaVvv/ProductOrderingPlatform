@@ -11,27 +11,26 @@ public static class OrderExtentions
 		{
 			CustomerId = request.CustomerId,
 			OrderStatus = request.OrderStatus,
-			Amount = request.Amount
 		};
 
 	}
 
-	public static OrderResponse ToResponse(this Order response)
+	public static OrderResponse ToResponse(this Order response, decimal totalAmount)
 	{
 		return new OrderResponse
 		{
 			Id = response.Id,
 			CustomerId = response.CustomerId,
 			OrderStatus = response.OrderStatus,
-			Amount = response.Amount,
 			PaymentStatus = response.PaymentStatus,
+			Amount = totalAmount,
 			CreatedAt = response.CreatedAt
 		};
 
 	}
 
-	public static List<OrderResponse> ToResponse(this List<Order> response)
+	public static List<OrderResponse> ToResponse(this List<Order> response, Dictionary<int, decimal> totalAmounts)
 	{
-		return response.Select(order => order.ToResponse()).ToList();
+		return response.Select(order => order.ToResponse(totalAmounts[order.Id])).ToList();
 	}
 }

@@ -16,16 +16,16 @@ public static class OrderItemExtentions
 
 	}
 
-	public static OrderItemResponse ToResponse(this OrderItem response, ProductDto product)
+	public static OrderItemResponse ToResponse(this OrderItem orderItem, ProductDto product)
 	{
 		return new OrderItemResponse
 		{
-			Id = response.Id,
-			OrderId = response.OrderId,
-			ProductId = response.ProductId,
-			Quantity = response.Quantity,
-			Price = response.Price,
-			CreatedAt = response.CreatedAt,
+			Id = orderItem.Id,
+			OrderId = orderItem.OrderId,
+			ProductId = orderItem.ProductId,
+			Quantity = orderItem.Quantity,
+			Price = orderItem.Quantity * product.Price,
+			CreatedAt = orderItem.CreatedAt,
 			Product = new ProductDto
 			{
 				Id = product.Id,

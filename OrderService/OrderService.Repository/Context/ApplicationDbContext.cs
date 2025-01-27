@@ -17,9 +17,6 @@ public class ApplicationDbContext : DbContext
 	{
 		modelBuilder.Entity<Order>(entity =>
 		{
-			entity.Property(o => o.Amount)
-				.HasColumnType("decimal(18, 2)");
-
 			entity.HasOne(o => o.Customer)
 				.WithMany()
 				.HasForeignKey(o => o.CustomerId)
@@ -28,9 +25,6 @@ public class ApplicationDbContext : DbContext
 
 		modelBuilder.Entity<OrderItem>(entity =>
 		{
-			entity.Property(o => o.Price)
-				.HasColumnType("decimal(18, 2)");
-
 			entity.HasOne(o => o.Order)
 				.WithMany()
 				.HasForeignKey(o => o.OrderId)

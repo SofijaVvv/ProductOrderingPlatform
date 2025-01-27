@@ -26,7 +26,7 @@ public class OrderItemController : ControllerBase
 
 	[HttpGet("{id}")]
 	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderItemResponse))]
-	public async Task<ActionResult<OrderItemResponse>> GetProductById(int id)
+	public async Task<ActionResult<OrderItemResponse>> GetOrderItemById(int id)
 	{
 		var orderItem = await _orderItemDomain.GetByIdAsync(id);
 		return Ok(orderItem);
@@ -34,15 +34,15 @@ public class OrderItemController : ControllerBase
 
 	[HttpPost]
 	[ProducesResponseType(StatusCodes.Status201Created, Type = typeof(OrderItemResponse))]
-	public async Task<IActionResult> AddProduct([FromBody] OrderItemRequest orderItemRequest)
+	public async Task<IActionResult> AddOrderItem([FromBody] OrderItemRequest orderItemRequest)
 	{
 		var product = await _orderItemDomain.AddAsync(orderItemRequest);
 
-		return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
+		return CreatedAtAction(nameof(GetOrderItemById), new { id = product.Id }, product);
 	}
 	[HttpPut("{id}")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
-	public async Task<ActionResult> UpdateProduct(
+	public async Task<ActionResult> UpdateOrderItem(
 		[FromRoute] int id,
 		[FromBody] UpdateOrderItemRequest updateAccountRequest)
 	{
@@ -53,7 +53,7 @@ public class OrderItemController : ControllerBase
 
 	[HttpDelete("{id}")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
-	public async Task<ActionResult> DeleteProduct(int id)
+	public async Task<ActionResult> DeleteOrderItem(int id)
 	{
 		await _orderItemDomain.DeleteAsync(id);
 		return NoContent();

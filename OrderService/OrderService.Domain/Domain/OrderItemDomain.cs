@@ -14,19 +14,16 @@ public class OrderItemDomain : IOrderItemDomain
 	private readonly IUnitOfWork _unitOfWork;
 	private readonly IOrderItemRepository _orderItemRepository;
 	private readonly IProductService _productService;
-	private readonly IOrderDomain _orderDomain;
 	private readonly ILogger<OrderItemDomain> _logger;
 
 	public OrderItemDomain(IUnitOfWork unitOfWork,
 		IOrderItemRepository orderItemRepository,
 		ILogger<OrderItemDomain> logger,
-		IProductService productService,
-		IOrderDomain orderDomain)
+		IProductService productService)
 	{
 		_orderItemRepository = orderItemRepository;
 		_unitOfWork = unitOfWork;
 		_productService = productService;
-		_orderDomain = orderDomain;
 		_logger = logger;
 	}
 
@@ -78,9 +75,7 @@ public class OrderItemDomain : IOrderItemDomain
 		}
 
 		OrderItem orderItem = orderItemRequest.ToOrderItem();
-
 		orderItem.CreatedAt = DateTime.UtcNow;
-		orderItem.Price = orderItem.Quantity * product.Price; // Set the price here
 
 		var orderItemResponse = orderItem.ToResponse(new ProductDto
 		{
@@ -90,11 +85,7 @@ public class OrderItemDomain : IOrderItemDomain
 			Category = product.Category
 		});
 
-		orderItemResponse.Price = orderItem.Price; // Use the updated price
-
 		 _orderItemRepository.AddAsync(orderItem);
-
-		 await _orderDomain.UpdateOrderAmount(orderItem.OrderId);
 
 		await _unitOfWork.SaveAsync();
 
@@ -116,13 +107,9 @@ public class OrderItemDomain : IOrderItemDomain
 		orderItem.OrderId = updateOrderItemRequest.OrderId;
 		orderItem.ProductId = updateOrderItemRequest.ProductId;
 		orderItem.Quantity = updateOrderItemRequest.Quantity;
-		orderItem.Price = updateOrderItemRequest.Quantity * product.Price;
 
 		_orderItemRepository.Update(orderItem);
-		await _orderDomain.UpdateOrderAmount(orderItem.OrderId);
 		await _unitOfWork.SaveAsync();
-
-
 	}
 
 	public async Task<bool> DeleteAsync(int id)
@@ -132,8 +119,6 @@ public class OrderItemDomain : IOrderItemDomain
 
 		await _orderItemRepository.DeleteAsync(id);
 		await _unitOfWork.SaveAsync();
-
-		await _orderDomain.UpdateOrderAmount(orderItem.OrderId);
 
 		return true;
 	}

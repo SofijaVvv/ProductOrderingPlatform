@@ -15,9 +15,6 @@ public class Order
 	public OrderStatus OrderStatus { get; set; }
 
 	[Required]
-	public decimal Amount { get; set; }
-
-	[Required]
 	public PaymentStatus PaymentStatus { get; set; }
 
 	[Required]
