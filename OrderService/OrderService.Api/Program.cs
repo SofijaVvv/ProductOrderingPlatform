@@ -28,9 +28,13 @@ builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 
 builder.Services.AddScoped<ICustomerDomain, CustomerDomain>();
+builder.Services.AddScoped<IOrderPaymentDomain, OrderPaymentDomain>();
 builder.Services.AddScoped<IOrderDomain, OrderDomain>();
 builder.Services.AddScoped<IOrderItemDomain, OrderItemDomain>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddSingleton<EventSubscriberService>();
+builder.Services.AddHostedService<EventBusSubscriberService>();
 builder.Services.AddHttpClient();
 builder.Services.AddLogging();
 

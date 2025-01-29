@@ -15,9 +15,6 @@ public class Order
 	public OrderStatus OrderStatus { get; set; }
 
 	[Required]
-	public PaymentStatus PaymentStatus { get; set; }
-
-	[Required]
 	public DateTime CreatedAt { get; set; }
 
 	public virtual Customer Customer { get; set; }

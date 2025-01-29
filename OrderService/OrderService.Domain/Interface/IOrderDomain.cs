@@ -6,8 +6,8 @@ namespace OrderService.Domain.Interface;
 public interface IOrderDomain
 {
 	Task<List<OrderResponse>> GetAllAsync();
-	Task<Order> GetByIdAsync(int id);
-	Task<Order> AddAsync(Order order);
+	Task<OrderResponse> GetByIdAsync(int id);
+	Task<OrderResponse> AddAsync(OrderRequest orderRequest);
 	Task Update(int orderId, UpdateOrderRequest updateOrderRequest);
 	Task<bool> DeleteAsync(int id);
 

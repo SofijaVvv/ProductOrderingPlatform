@@ -22,7 +22,6 @@ public static class OrderExtentions
 			Id = response.Id,
 			CustomerId = response.CustomerId,
 			OrderStatus = response.OrderStatus,
-			PaymentStatus = response.PaymentStatus,
 			Amount = totalAmount,
 			CreatedAt = response.CreatedAt
 		};

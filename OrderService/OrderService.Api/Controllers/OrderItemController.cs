@@ -40,13 +40,14 @@ public class OrderItemController : ControllerBase
 
 		return CreatedAtAction(nameof(GetOrderItemById), new { id = product.Id }, product);
 	}
+
 	[HttpPut("{id}")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	public async Task<ActionResult> UpdateOrderItem(
 		[FromRoute] int id,
-		[FromBody] UpdateOrderItemRequest updateAccountRequest)
+		[FromBody] UpdateOrderItemRequest updateOrderItemRequest)
 	{
-		await _orderItemDomain.Update(id, updateAccountRequest);
+		await _orderItemDomain.Update(id, updateOrderItemRequest);
 
 		return NoContent();
 	}

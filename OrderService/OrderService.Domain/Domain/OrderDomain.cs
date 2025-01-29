@@ -42,19 +42,29 @@ public class OrderDomain : IOrderDomain
 		return orders.ToResponse(totalAmounts);
 	}
 
-	public async Task<Order> GetByIdAsync(int id)
+	public async Task<OrderResponse> GetByIdAsync(int id)
 	{
 		var order = await _orderRepository.GetByIdAsync(id);
 		if (order == null) throw new Exception("Order not found");
 
-		return order;
+		var totalAmount = await CalculateTotalAmount(order.Id);
+		var orderResponse = order.ToResponse(totalAmount);
+
+		return orderResponse;
 	}
 
-	public async Task<Order> AddAsync(Order order)
+	public async Task<OrderResponse> AddAsync(OrderRequest orderRequest)
 	{
+		Order order = orderRequest.ToOrder();
+		order.CreatedAt = DateTime.UtcNow;
+
 		_orderRepository.AddAsync(order);
 		await _unitOfWork.SaveAsync();
-		return order;
+
+		var totalAmount = await CalculateTotalAmount(order.Id);
+		var orderResponse = order.ToResponse(totalAmount);
+
+		return orderResponse;
 	}
 
 	public async Task Update(int orderId, UpdateOrderRequest updateOrderRequest)
@@ -75,6 +85,7 @@ public class OrderDomain : IOrderDomain
 		if (order == null) throw new Exception("Order not found");
 
 		await _orderRepository.DeleteAsync(id);
+		await _unitOfWork.SaveAsync();
 		return true;
 	}
 

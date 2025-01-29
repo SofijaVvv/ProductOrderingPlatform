@@ -11,7 +11,8 @@ public static class PaymentExtention
 		{
 			Amount = paymentRequest.Amount,
 			PaymentStatus = paymentRequest.PaymentStatus,
-			PaymentMethod = paymentRequest.PaymentMethod
+			PaymentMethod = paymentRequest.PaymentMethod,
+			OrderId = paymentRequest.OrderId
 		};
 	}
 
@@ -20,6 +21,7 @@ public static class PaymentExtention
 		return new PaymentResponse
 		{
 			Id = response.Id,
+			OrderId = response.OrderId,
 			Amount = response.Amount,
 			PaymentStatus = response.PaymentStatus,
 			PaymentMethod = response.PaymentMethod,
