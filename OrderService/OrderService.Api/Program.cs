@@ -12,6 +12,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -33,7 +37,7 @@ builder.Services.AddScoped<IOrderDomain, OrderDomain>();
 builder.Services.AddScoped<IOrderItemDomain, OrderItemDomain>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
-builder.Services.AddSingleton<EventSubscriberService>();
+builder.Services.AddSingleton<EventSubscriber>();
 builder.Services.AddHostedService<EventBusSubscriberService>();
 builder.Services.AddHttpClient();
 builder.Services.AddLogging();

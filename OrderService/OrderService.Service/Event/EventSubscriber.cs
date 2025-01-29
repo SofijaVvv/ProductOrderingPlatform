@@ -2,22 +2,22 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using OrderService.Model.Dto;
 using OrderService.Service.ConfigModel;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace OrderService.Service.Services;
 
-public class EventSubscriberService
+public class EventSubscriber
 {
-	private readonly ILogger<EventSubscriberService> _logger;
+	private readonly ILogger<EventSubscriber> _logger;
 	private readonly RabbitMqConfig _config;
 
-	public EventSubscriberService(ILogger<EventSubscriberService> logger, IConfiguration configuration)
+	public EventSubscriber(ILogger<EventSubscriber> logger, IConfiguration configuration)
 	{
 		_logger = logger;
-		_config = configuration.GetSection("RabbitMqConfig").Get<RabbitMqConfig>() ?? throw new InvalidOperationException("RabbitMqConfig is missing");
+		_config = configuration.GetSection("RabbitMqConfig").Get<RabbitMqConfig>() ??
+		          throw new InvalidOperationException("RabbitMqConfig is missing");
 	}
 
 	public void Subscribe()
@@ -26,7 +26,7 @@ public class EventSubscriberService
 		{
 			HostName = _config.Host,
 			UserName = _config.UserName,
-			Password = _config.Password
+			Password = _config.Password,
 		};
 
 		var connection = factory.CreateConnection();
@@ -41,21 +41,32 @@ public class EventSubscriberService
 		);
 
 		var consumer = new EventingBasicConsumer(channel);
-		consumer.Received += (model, ea) =>
+		consumer.Received += (_, ea) =>
 		{
-			var body = ea.Body.ToArray();
-			var message = Encoding.UTF8.GetString(body);
-			JsonSerializer.Deserialize<PaymentDto>(message);
+			try
+			{
+				var body = ea.Body.ToArray();
+				var message = Encoding.UTF8.GetString(body);
+				JsonSerializer.Deserialize<string>(message);
+				_logger.LogInformation($"Received message: {message}");
 
-			_logger.LogInformation($"Received message: {message}");
+				channel.BasicAck(ea.DeliveryTag, false);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError($"Error processing message: {ex.Message}");
+				channel.BasicNack(ea.DeliveryTag, false, true);
+			}
 		};
 
 		channel.BasicConsume(
 			queue: _config.QueueName,
-			autoAck: true,
+			autoAck: false,
 			consumer: consumer
 		);
 
+
 		_logger.LogInformation("Subscribed to RabbitMQ queue");
 	}
+
 }

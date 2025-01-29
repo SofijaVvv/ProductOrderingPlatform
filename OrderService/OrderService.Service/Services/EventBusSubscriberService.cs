@@ -7,9 +7,9 @@ public class EventBusSubscriberService : IHostedService
 {
 
 	private readonly ILogger<EventBusSubscriberService> _logger;
-	private readonly EventSubscriberService _eventSubscriber;
+	private readonly EventSubscriber _eventSubscriber;
 
-	public EventBusSubscriberService(ILogger<EventBusSubscriberService> logger, EventSubscriberService eventSubscriber)
+	public EventBusSubscriberService(ILogger<EventBusSubscriberService> logger, EventSubscriber eventSubscriber)
 	{
 		_logger = logger;
 		_eventSubscriber = eventSubscriber;
