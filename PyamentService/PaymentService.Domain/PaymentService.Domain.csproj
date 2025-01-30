@@ -9,6 +9,7 @@
     <ItemGroup>
       <ProjectReference Include="..\PaymentService.Model\PaymentService.Model.csproj" />
       <ProjectReference Include="..\PaymentService.Repository\PaymentService.Repository.csproj" />
+      <ProjectReference Include="..\PymentService.Infrastructure\PymentService.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>

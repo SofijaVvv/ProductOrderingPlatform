@@ -23,11 +23,9 @@ public class ProductService : IProductService
 			var response = await _httpClient.GetAsync($"http://localhost:5121/api/Product/{productId}");
 			response.EnsureSuccessStatusCode();
 
-			var jsonResponse = await response.Content.ReadAsStringAsync();
-			_logger.LogInformation($"JSON Response: {jsonResponse}");
-
 			var product = await response.Content.ReadFromJsonAsync<ProductDto>();
 			_logger.LogInformation($"ID: {product?.Id}");
+
 			return product;
 		}
 		catch (Exception e)

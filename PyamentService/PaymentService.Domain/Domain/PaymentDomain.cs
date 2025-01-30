@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PaymentService.Domain.Interface;
 using PaymentService.Model.Dto;
@@ -5,8 +6,8 @@ using PaymentService.Model.Exceptions;
 using PaymentService.Model.Extenetions;
 using PaymentService.Model.Models;
 using PaymentService.Repository.Interface;
+using PymentService.Infrastructure.Interface;
 using Stripe;
-using PaymentMethod = PaymentService.Model.Enum.PaymentMethod;
 
 namespace PaymentService.Domain.Domain;
 
@@ -14,11 +15,16 @@ public class PaymentDomain : IPaymentDomain
 {
 	private readonly IPaymentRepository _paymentRepository;
 	private readonly IEventPublisher _eventPublisher;
+	private readonly string _defaultCurrency;
 	private readonly ILogger<PaymentDomain> _logger;
 
-	public PaymentDomain(IPaymentRepository paymentRepository,IEventPublisher eventPublisher,ILogger<PaymentDomain> logger)
+	public PaymentDomain(IPaymentRepository paymentRepository,
+		IEventPublisher eventPublisher,
+		ILogger<PaymentDomain> logger, IConfiguration configuration)
 	{
 		_paymentRepository = paymentRepository;
+		_defaultCurrency = configuration["PaymentConfig:DefaultCurrency"]
+		                   ?? throw new InvalidOperationException("PaymentConfig is missing");
 		_eventPublisher = eventPublisher;
 		_logger = logger;
 	}
@@ -37,13 +43,13 @@ public class PaymentDomain : IPaymentDomain
 
 	public async Task<Payment> AddAsync(PaymentRequest paymentRequest)
 	{
-		var stripePaymentMethod = MapPaymentMethodTypeToStripe(paymentRequest.PaymentMethod);
-		var testPaymentMethod = GetTestPaymentMethod(paymentRequest.PaymentMethod);
+		var paymentMethod = paymentRequest.PaymentMethod;
+
 		var options = new PaymentIntentCreateOptions
 		{
 			Amount = (long)(paymentRequest.Amount * 100),
-			Currency = "usd",
-			PaymentMethodTypes = new List<string> { stripePaymentMethod }
+			Currency = _defaultCurrency,
+			PaymentMethodTypes = new List<string> { "card" }
 		};
 
 		PaymentIntent paymentIntent;
@@ -55,7 +61,7 @@ public class PaymentDomain : IPaymentDomain
 
 			paymentIntent = await service.ConfirmAsync(paymentIntent.Id, new PaymentIntentConfirmOptions
 			{
-				PaymentMethod = testPaymentMethod
+				PaymentMethod = paymentMethod
 			});
 
 			if (paymentIntent.Status != "succeeded")
@@ -75,34 +81,23 @@ public class PaymentDomain : IPaymentDomain
 		_paymentRepository.Add(payment);
 		await _paymentRepository.SaveAsync();
 
+		var paymentEventMessage = new PaymentEventMessage
+		{
+			Id = payment.Id,
+			Amount = payment.Amount,
+			PaymentStatus = payment.PaymentStatus,
+			OrderId = payment.OrderId,
+			PaymentMethod = payment.PaymentMethod,
+			CreatedAt = payment.CreatedAt
+		};
+
 		_eventPublisher.PublishAsync("payment.status",
-			$"The payment status is: {payment.PaymentStatus}");
+			paymentEventMessage);
 
 		return payment;
 	}
 
-	private string MapPaymentMethodTypeToStripe(PaymentMethod paymentMethod)
-	{
-		switch (paymentMethod)
-		{
-			case PaymentMethod.CreditCard:
-				return "card";
-			case PaymentMethod.BackTransfer:
-				return "bank";
-			default:
-				throw new Exception($"Unsupported payment method: {paymentMethod}");
-		}
-	}
 
-	private string GetTestPaymentMethod(PaymentMethod paymentMethod)
-	{
-		return paymentMethod switch
-		{
-			PaymentMethod.CreditCard => "pm_card_visa",
-			PaymentMethod.BackTransfer => "pm_bank_transfer",
-			_ => throw new Exception($"Unsupported test payment method: {paymentMethod}")
-		};
-	}
 
 	public async Task<Refund> RefundAsync(string paymentIntentId, decimal amount )
 	{

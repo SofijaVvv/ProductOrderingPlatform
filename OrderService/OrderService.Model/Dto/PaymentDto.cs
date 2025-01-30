@@ -5,7 +5,6 @@ namespace OrderService.Model.Dto;
 
 public class PaymentDto
 {
-	[JsonPropertyName("id")]
 	public int Id { get; set; }
 	public decimal Amount { get; set; }
 	public PaymentStatus PaymentStatus { get; set; }

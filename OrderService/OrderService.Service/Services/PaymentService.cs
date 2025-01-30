@@ -27,11 +27,18 @@ public class PaymentService : IPaymentService
 			var responseContent = await response.Content.ReadAsStringAsync();
 			_logger.LogInformation("Payment API response: {ResponseContent}", responseContent);
 
-			var paymentResponse = JsonSerializer.Deserialize<PaymentDto>(responseContent);
+			var options = new JsonSerializerOptions
+			{
+				PropertyNameCaseInsensitive = true
+			};
+
+			var paymentResponse = JsonSerializer.Deserialize<PaymentDto>(responseContent, options);
+
 
 			if (paymentResponse != null)
 			{
-					_logger.LogInformation("PaymentDto Id set to: {Id}", paymentDto.Id);
+				paymentDto.Id = paymentResponse.Id; // Ensure this line correctly sets the payment ID
+				_logger.LogInformation("PaymentDto Id set to: {Id}", paymentDto.Id);
 			}
 
 			return true;

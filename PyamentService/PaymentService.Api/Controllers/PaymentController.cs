@@ -38,7 +38,7 @@ public class PaymentController : ControllerBase
 
 	[HttpPost]
 	[ProducesResponseType(StatusCodes.Status201Created, Type = typeof(PaymentResponse))]
-	public async Task<IActionResult> AddPayment([FromBody] PaymentRequest paymentRequest)
+	public async Task<IActionResult> CreatePayment([FromBody] PaymentRequest paymentRequest)
 	{
 		var payment = await _paymentDomain.AddAsync(paymentRequest);
 

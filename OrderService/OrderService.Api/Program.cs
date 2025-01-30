@@ -4,6 +4,7 @@ using OrderService.Domain.Interface;
 using OrderService.Repository.Context;
 using OrderService.Repository.Interface;
 using OrderService.Repository.Repository;
+using OrderService.Service.Event;
 using OrderService.Service.Interface;
 using OrderService.Service.Services;
 

@@ -2,11 +2,11 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using PaymentService.Domain.ConfigModel;
-using PaymentService.Domain.Interface;
+using PymentService.Infrastructure.ConfigModel;
+using PymentService.Infrastructure.Interface;
 using RabbitMQ.Client;
 
-namespace PaymentService.Domain.Domain;
+namespace PymentService.Infrastructure.Event;
 
 public class EventPublisher : IEventPublisher
 {
@@ -30,29 +30,24 @@ public class EventPublisher : IEventPublisher
 
 		try
 		{
-			using (var connection = factory.CreateConnection())
-			using (var channel = connection.CreateModel())
-			{
-				channel.QueueDeclare(
-					queue: _config.QueueName,
-					durable: true,
-					exclusive: false,
-					autoDelete: false,
-					arguments: null
-				);
+			using var connection = factory.CreateConnection();
+			using var channel = connection.CreateModel();
 
-				var serializedMessage = JsonSerializer.Serialize(message);
-				var body = Encoding.UTF8.GetBytes(serializedMessage);
+			channel.ExchangeDeclare(exchange: "payment_exchange", type: ExchangeType.Topic);
 
-				channel.BasicPublish(
-					exchange: string.Empty,
-					routingKey: _config.QueueName,
-					basicProperties: null,
-					body: body
-				);
 
-				_logger.LogInformation($"Published message to topic: {topic}, message: {serializedMessage}");
-			}
+			var serializedMessage = JsonSerializer.Serialize(message);
+			_logger.LogInformation($"Serialized message: {serializedMessage}");
+			var body = Encoding.UTF8.GetBytes(serializedMessage);
+
+			channel.BasicPublish(
+				exchange: "payment_exchange",
+				routingKey: topic,
+				basicProperties: null,
+				body: body
+			);
+
+			_logger.LogInformation($"Published message to topic: {topic}, message: {serializedMessage}");
 		}
 		catch (Exception ex)
 		{

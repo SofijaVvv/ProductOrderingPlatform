@@ -14,7 +14,7 @@ public class Payment
 	public PaymentStatus PaymentStatus { get; set; }
 	public int? OrderId { get; set; }
 	[Required]
-	public PaymentMethod PaymentMethod { get; set; }
+	public string PaymentMethod { get; set; }
 	[Required]
 	public DateTime CreatedAt { get; set; }
 }

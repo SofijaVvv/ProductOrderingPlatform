@@ -6,6 +6,8 @@ using PaymentService.Repository.Context;
 using PaymentService.Repository.Interface;
 using PaymentService.Repository.Repository;
 using PyamentService.Api.Filter;
+using PymentService.Infrastructure.Event;
+using PymentService.Infrastructure.Interface;
 using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);

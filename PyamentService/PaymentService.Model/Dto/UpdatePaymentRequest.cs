@@ -6,5 +6,5 @@ public class UpdatePaymentRequest
 {
 	public decimal Amount { get; set; }
 	public PaymentStatus PaymentStatus { get; set; }
-	public PaymentMethod PaymentMethod { get; set; }
+	public string PaymentMethod { get; set; }
 }

@@ -1,12 +1,14 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using OrderService.Model.Dto;
 using OrderService.Service.ConfigModel;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace OrderService.Service.Services;
+namespace OrderService.Service.Event;
 
 public class EventSubscriber
 {
@@ -32,12 +34,20 @@ public class EventSubscriber
 		var connection = factory.CreateConnection();
 		var channel = connection.CreateModel();
 
+		channel.ExchangeDeclare(exchange: "payment_exchange", type: ExchangeType.Topic);
+
 		channel.QueueDeclare(
 			queue: _config.QueueName,
 			durable: true,
 			exclusive: false,
 			autoDelete: false,
 			arguments: null
+		);
+
+		channel.QueueBind(
+			queue: _config.QueueName,
+			exchange: "payment_exchange",
+			routingKey: "payment.status"
 		);
 
 		var consumer = new EventingBasicConsumer(channel);
@@ -47,10 +57,25 @@ public class EventSubscriber
 			{
 				var body = ea.Body.ToArray();
 				var message = Encoding.UTF8.GetString(body);
-				JsonSerializer.Deserialize<string>(message);
-				_logger.LogInformation($"Received message: {message}");
 
-				channel.BasicAck(ea.DeliveryTag, false);
+				_logger.LogInformation($"Received raw message: {message}");
+
+				// var options = new JsonSerializerOptions
+				// {
+				// 	PropertyNameCaseInsensitive = true,
+				// };
+
+				var paymentEvent = JsonSerializer.Deserialize<PaymentEventMessage>(message);
+				if (paymentEvent != null)
+				{
+					_logger.LogInformation($"Deserialized message: {message}");
+					channel.BasicAck(ea.DeliveryTag, false);
+				}
+				else
+				{
+					_logger.LogWarning("Received a null message after deserialization!");
+					channel.BasicNack(ea.DeliveryTag, false, true);
+				}
 			}
 			catch (Exception ex)
 			{
