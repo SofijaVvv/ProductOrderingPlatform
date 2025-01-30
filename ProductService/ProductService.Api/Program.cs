@@ -1,9 +1,10 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using ProductService.Api.Filter;
+using ProductService.Api.MongoDbModel;
 using ProductService.Domain;
+using ProductService.Domain.ImageHandler;
 using ProductService.Domain.Interfaces;
-using ProductService.Model.MongoDbModel;
 using ProductService.Repository;
 using ProductService.Repository.Db;
 using ProductService.Repository.Interfaces;
@@ -27,12 +28,15 @@ builder.Services.AddSingleton(sp =>
 builder.Services.AddSingleton<MongoDataValidation>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductDomain, ProductDomain>();
+builder.Services.AddScoped<IImageProcessor, ImageProcessor>();
 
 builder.Services.AddControllers(options =>
 	options.Filters.Add<GlobalExceptionFilter>());
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
 
 var app = builder.Build();
 

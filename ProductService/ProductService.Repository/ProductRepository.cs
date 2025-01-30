@@ -27,9 +27,9 @@ public class ProductRepository : IProductRepository
 		return await _collection.Find(p => p.Id == objectId).FirstOrDefaultAsync();
 	}
 
-	public void Add(Product product)
+	public async Task AddAsync(Product product)
 	{
-		_collection.InsertOneAsync(product);
+		await _collection.InsertOneAsync(product);
 	}
 
 	public async Task<bool> DeleteAsync(string id)
@@ -40,7 +40,7 @@ public class ProductRepository : IProductRepository
 	}
 
 
-	public void Update(Product product)
+	public async Task UpdateAsync(Product product)
 	{
 		var filter = Builders<Product>.Filter.Eq(p => p.Id, product.Id);
 		var update = Builders<Product>.Update
@@ -50,7 +50,7 @@ public class ProductRepository : IProductRepository
 			.Set(p => p.Price, product.Price)
 			.Set(p => p.Category, product.Category);
 
-		 _collection.UpdateOneAsync(filter, update);
+		 await _collection.UpdateOneAsync(filter, update);
 	}
 
 

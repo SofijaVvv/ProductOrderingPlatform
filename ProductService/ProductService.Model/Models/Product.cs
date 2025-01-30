@@ -11,8 +11,6 @@ public class Product
 	[BsonElement("name")]
 	public string Name { get; set; }
 
-	public string ImageFileName { get; set; }
-
 	[BsonElement("image")]
 	public string Image { get; set; }
 

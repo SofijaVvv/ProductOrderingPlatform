@@ -1,4 +1,4 @@
-namespace ProductService.Model.MongoDbModel;
+namespace ProductService.Api.MongoDbModel;
 
 public class MongoDbSettings
 {

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ProductService.Domain.Interfaces;
 using ProductService.Model.Dto;
-using ProductService.Model.Extentions;
 using ProductService.Model.Models;
 
 namespace ProductService.Api.Controllers;
@@ -21,19 +20,18 @@ public class ProductController : ControllerBase
 	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductResponse>))]
 	public async Task<ActionResult> GetAllProducts()
 	{
-		var product = await _productDomain.GetAllAsync();
+		var products = await _productDomain.GetAllAsync();
 
-		var result = product.ToResponse();
-		return Ok(result);
+		return Ok(products);
 	}
 
 	[HttpGet("{id}")]
 	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductResponse))]
-	public async Task<ActionResult<Product>> GetProductById(string id)
+	public async Task<ActionResult> GetProductById(string id)
 	{
 		var product = await _productDomain.GetByIdAsync(id);
-		var result = product.ToResponse();
-		return Ok(result);
+
+		return Ok(product);
 	}
 
 	[HttpPost]
@@ -42,7 +40,7 @@ public class ProductController : ControllerBase
 	{
 		var product = await _productDomain.AddAsync(productRequest);
 
-		return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product.ToResponse());
+		return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
 	}
 
 	[HttpPut("{id}")]
