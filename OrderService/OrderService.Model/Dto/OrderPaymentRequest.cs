@@ -1,4 +1,3 @@
-using OrderService.Model.Enum;
 
 namespace OrderService.Model.Dto;
 

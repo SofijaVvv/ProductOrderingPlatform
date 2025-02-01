@@ -55,7 +55,7 @@ public class EventSubscriber
 			try
 			{
 				var body = ea.Body.ToArray();
-				var message = Encoding.UTF8.GetString((byte[])body);
+				var message = Encoding.UTF8.GetString(body);
 
 				_logger.LogInformation($"Received raw message: {message}");
 

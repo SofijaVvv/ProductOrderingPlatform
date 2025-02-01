@@ -38,7 +38,8 @@ public class ProductDomain : IProductDomain
 		Product product = productRequest.ToProduct();
 		if (!string.IsNullOrEmpty(product.Image))
 		{
-			product.Image = await _imageProcessor.ProcessImageAsync(product.Image, productRequest.ImageFileName);
+			string fileLocation = await _imageProcessor.SaveImageAsync(product.Image, productRequest.ImageFileName);
+			product.Image = fileLocation;
 		}
 
 		await _productRepository.AddAsync(product);

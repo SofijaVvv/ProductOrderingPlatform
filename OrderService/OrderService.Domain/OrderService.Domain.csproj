@@ -7,10 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Exception\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\OrderService.Model\OrderService.Model.csproj" />
       <ProjectReference Include="..\OrderService.Repository\OrderService.Repository.csproj" />
       <ProjectReference Include="..\OrderService.Service\OrderService.Service.csproj" />

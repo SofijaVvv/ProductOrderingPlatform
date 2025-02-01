@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using OrderService.Api.Filter;
 using OrderService.Domain.Domain;
 using OrderService.Domain.Interface;
 using OrderService.Infrastructure;
@@ -12,7 +13,8 @@ using OrderService.Service.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+	options.Filters.Add<GlobalExceptionFilter>());
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
@@ -45,15 +47,17 @@ builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<IPaymentService,PaymentService>((sp, client) =>
 {
 	var config = sp.GetRequiredService<IConfiguration>();
-	var baseUrl = config.GetValue<string>("ApiSettings:PaymentBaseUrl");
-	client.BaseAddress = new Uri(baseUrl ?? throw new Exception("PaymentBaseUrl in ApiSettings is not configured or is missing."));
+	var baseUrl = config.GetValue<string>("ApiSettings:PaymentBaseUrl")
+	              ?? throw new Exception("PaymentBaseUrl in ApiSettings is not configured or is missing.");
+	client.BaseAddress = new Uri(baseUrl);
 });
 
 builder.Services.AddHttpClient<IProductService, ProductService>((sp, client) =>
 {
 	var config = sp.GetRequiredService<IConfiguration>();
-	var baseUrl = config.GetValue<string>("ApiSettings:ProductBaseUrl");
-	client.BaseAddress = new Uri(baseUrl ?? throw new Exception("ProductBaseUrl in ApiSettings is not configured or is missing."));
+	var baseUrl = config.GetValue<string>("ApiSettings:ProductBaseUrl")
+	              ?? throw new Exception("ProductBaseUrl in ApiSettings is not configured or is missing.");
+	client.BaseAddress = new Uri(baseUrl);
 });
 
 

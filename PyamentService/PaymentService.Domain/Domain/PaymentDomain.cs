@@ -24,7 +24,7 @@ public class PaymentDomain : IPaymentDomain
 	{
 		_paymentRepository = paymentRepository;
 		_defaultCurrency = configuration["PaymentConfig:DefaultCurrency"]
-		                   ?? throw new InvalidOperationException("PaymentConfig is missing");
+		                   ?? throw new InvalidOperationException("PaymentConfig:DefaultCurrency is missing");
 		_eventPublisher = eventPublisher;
 		_logger = logger;
 	}
@@ -40,8 +40,6 @@ public class PaymentDomain : IPaymentDomain
 		if (payment == null) throw new NotFoundException("Payment not found");
 		return payment;
 	}
-
-
 
 	public async Task<Payment> AddAsync(PaymentRequest paymentRequest)
 	{
@@ -98,8 +96,6 @@ public class PaymentDomain : IPaymentDomain
 
 		return payment;
 	}
-
-
 
 	public async Task<Refund> RefundAsync(string paymentIntentId, decimal amount )
 	{

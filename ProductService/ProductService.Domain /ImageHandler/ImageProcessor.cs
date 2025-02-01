@@ -4,7 +4,7 @@ namespace ProductService.Domain.ImageHandler;
 
 public class ImageProcessor : IImageProcessor
 {
-	public async Task<string> ProcessImageAsync(string base64Image, string? imageFileName)
+	public async Task<string> SaveImageAsync(string base64Image, string? imageFileName)
 	{
 		var imagesDirectory = Path.Combine(Directory.GetCurrentDirectory(), "images");
 
