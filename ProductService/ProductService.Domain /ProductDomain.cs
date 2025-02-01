@@ -46,6 +46,12 @@ public class ProductDomain : IProductDomain
 		return product.ToResponse();
 	}
 
+	public async Task<List<ProductResponse>> GetByIdsAsync(List<string> ids)
+	{
+		var products = await _productRepository.GetByIdsAsync(ids);
+		return products.ToResponse();
+	}
+
 	public async Task DeleteAsync(string id)
 	{
 		var product = await _productRepository.GetByIdAsync(id);

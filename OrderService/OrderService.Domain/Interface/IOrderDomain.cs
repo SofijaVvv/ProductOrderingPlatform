@@ -7,6 +7,7 @@ public interface IOrderDomain
 {
 	Task<List<OrderResponse>> GetAllAsync();
 	Task<OrderResponse> GetByIdAsync(int id);
+	Task<OrderPaymentResponse> PayOrderAsync(OrderPaymentRequest request);
 	Task<OrderResponse> AddAsync(OrderRequest orderRequest);
 	Task Update(int orderId, UpdateOrderRequest updateOrderRequest);
 	Task<bool> DeleteAsync(int id);

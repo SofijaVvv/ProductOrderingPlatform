@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ProductService.Domain.Interfaces;
 using ProductService.Model.Dto;
-using ProductService.Model.Models;
 
 namespace ProductService.Api.Controllers;
 
@@ -52,6 +51,14 @@ public class ProductController : ControllerBase
 		await _productDomain.UpdateAsync(id, updateAccountRequest);
 
 		return NoContent();
+	}
+
+	[HttpGet("Batch")]
+	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductResponse>))]
+	public async Task<ActionResult<List<ProductResponse>>> GetByIds([FromQuery] List<string> ids)
+	{
+		var products = await _productDomain.GetByIdsAsync(ids);
+		return Ok(products);
 	}
 
 	[HttpDelete("{id}")]

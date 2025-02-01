@@ -18,7 +18,6 @@ public static class OrderPaymentExtentions
 			OrderStatus = response.OrderStatus,
 			Payment = new PaymentDto
 			{
-				Id = payment.Id,
 				Amount = payment.Amount,
 				PaymentStatus = payment.PaymentStatus,
 				OrderId = payment.OrderId,

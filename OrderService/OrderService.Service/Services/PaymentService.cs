@@ -19,29 +19,26 @@ public class PaymentService : IPaymentService
 
 	public async Task<bool> ProcessPaymentAsync(PaymentDto paymentDto)
 	{
-		var content = new StringContent(JsonSerializer.Serialize(paymentDto), Encoding.UTF8, "application/json");
-		var response = await _httpClient.PostAsync("http://localhost:5278/api/Payment", content);
-
-		if (response.IsSuccessStatusCode)
+		try
 		{
-			var responseContent = await response.Content.ReadAsStringAsync();
-			_logger.LogInformation("Payment API response: {ResponseContent}", responseContent);
+			var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+			var content = new StringContent(JsonSerializer.Serialize(paymentDto, options), Encoding.UTF8, "application/json");
+			var response = await _httpClient.PostAsync("api/Payment", content);
 
-			var options = new JsonSerializerOptions
+			if (response.IsSuccessStatusCode)
 			{
-				PropertyNameCaseInsensitive = true
-			};
-
-			var paymentResponse = JsonSerializer.Deserialize<PaymentDto>(responseContent, options);
-
-
-			if (paymentResponse != null)
-			{
-				paymentDto.Id = paymentResponse.Id; // Ensure this line correctly sets the payment ID
-				_logger.LogInformation("PaymentDto Id set to: {Id}", paymentDto.Id);
+				var responseContent = await response.Content.ReadAsStringAsync();
+				_logger.LogInformation("Payment processed successfully: {ResponseContent}", responseContent);
+				return true;
 			}
-
-			return true;
+		}
+		catch (HttpRequestException ex)
+		{
+			_logger.LogError(ex, "Payment failed with status {StatusCode}", ex.StatusCode);
+		}
+		catch (Exception e)
+		{
+			_logger.LogError("Error processing payment: {Message}", e.Message);
 		}
 
 		return false;

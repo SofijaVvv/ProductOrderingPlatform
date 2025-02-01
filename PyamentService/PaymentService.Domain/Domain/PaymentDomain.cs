@@ -41,6 +41,8 @@ public class PaymentDomain : IPaymentDomain
 		return payment;
 	}
 
+
+
 	public async Task<Payment> AddAsync(PaymentRequest paymentRequest)
 	{
 		var paymentMethod = paymentRequest.PaymentMethod;

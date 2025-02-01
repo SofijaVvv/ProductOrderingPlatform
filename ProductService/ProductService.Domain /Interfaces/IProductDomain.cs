@@ -9,5 +9,6 @@ public interface IProductDomain
 	Task<ProductResponse> GetByIdAsync(string id);
 	Task<ProductResponse> AddAsync(ProductRequest productRequest);
 	Task DeleteAsync(string id);
+	Task<List<ProductResponse>> GetByIdsAsync(List<string> ids);
 	Task UpdateAsync(string id, UpdateProductRequest updateProductRequest);
 }

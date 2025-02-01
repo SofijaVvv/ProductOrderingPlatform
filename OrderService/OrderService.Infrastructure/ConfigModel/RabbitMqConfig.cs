@@ -1,4 +1,4 @@
-namespace OrderService.Service.ConfigModel;
+namespace OrderService.Infrastructure.ConfigModel;
 
 public class RabbitMqConfig
 {

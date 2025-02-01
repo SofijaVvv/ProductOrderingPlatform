@@ -8,17 +8,17 @@ namespace OrderService.Api.Controllers;
 [Route("api/[controller]")]
 public class OrderPaymentController : ControllerBase
 {
-	private readonly IOrderPaymentDomain _orderPaymentDomain;
+	private readonly IOrderDomain _orderDomain;
 
-	public OrderPaymentController(IOrderPaymentDomain orderPaymentDomain)
+	public OrderPaymentController(IOrderDomain orderDomain)
 	{
-		_orderPaymentDomain = orderPaymentDomain;
+		_orderDomain = orderDomain;
 	}
 
 	[HttpPost("PayOrder")]
 	public async Task<IActionResult> PayOrderAsync([FromBody] OrderPaymentRequest request)
 	{
-			var response = await _orderPaymentDomain.PayOrderAsync(request);
+			var response = await _orderDomain.PayOrderAsync(request);
 			return Ok(response);
 	}
 

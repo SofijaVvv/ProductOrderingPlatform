@@ -5,7 +5,7 @@ namespace ProductService.Model.Dto;
 
 public class ProductResponse
 {
-	public ObjectId Id { get; set; }
+	public string Id { get; set; }
 	public string Name { get; set; }
 	public string Image { get; set; }
 	public string ImageFileName { get; set; }

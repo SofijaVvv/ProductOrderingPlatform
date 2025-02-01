@@ -1,14 +1,13 @@
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using OrderService.Infrastructure.ConfigModel;
 using OrderService.Model.Dto;
-using OrderService.Service.ConfigModel;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace OrderService.Service.Event;
+namespace OrderService.Infrastructure.Event;
 
 public class EventSubscriber
 {
@@ -56,7 +55,7 @@ public class EventSubscriber
 			try
 			{
 				var body = ea.Body.ToArray();
-				var message = Encoding.UTF8.GetString(body);
+				var message = Encoding.UTF8.GetString((byte[])body);
 
 				_logger.LogInformation($"Received raw message: {message}");
 

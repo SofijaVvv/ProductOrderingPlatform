@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using OrderService.Domain.Domain;
 using OrderService.Domain.Interface;
+using OrderService.Infrastructure;
+using OrderService.Infrastructure.Event;
 using OrderService.Repository.Context;
 using OrderService.Repository.Interface;
 using OrderService.Repository.Repository;
-using OrderService.Service.Event;
 using OrderService.Service.Interface;
 using OrderService.Service.Services;
 
@@ -33,7 +34,6 @@ builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 
 builder.Services.AddScoped<ICustomerDomain, CustomerDomain>();
-builder.Services.AddScoped<IOrderPaymentDomain, OrderPaymentDomain>();
 builder.Services.AddScoped<IOrderDomain, OrderDomain>();
 builder.Services.AddScoped<IOrderItemDomain, OrderItemDomain>();
 builder.Services.AddScoped<IProductService, ProductService>();
@@ -41,6 +41,22 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddSingleton<EventSubscriber>();
 builder.Services.AddHostedService<EventBusSubscriberService>();
 builder.Services.AddHttpClient();
+
+builder.Services.AddHttpClient<IPaymentService,PaymentService>((sp, client) =>
+{
+	var config = sp.GetRequiredService<IConfiguration>();
+	var baseUrl = config.GetValue<string>("ApiSettings:PaymentBaseUrl");
+	client.BaseAddress = new Uri(baseUrl ?? throw new Exception("PaymentBaseUrl in ApiSettings is not configured or is missing."));
+});
+
+builder.Services.AddHttpClient<IProductService, ProductService>((sp, client) =>
+{
+	var config = sp.GetRequiredService<IConfiguration>();
+	var baseUrl = config.GetValue<string>("ApiSettings:ProductBaseUrl");
+	client.BaseAddress = new Uri(baseUrl ?? throw new Exception("ProductBaseUrl in ApiSettings is not configured or is missing."));
+});
+
+
 builder.Services.AddLogging();
 
 var app = builder.Build();

@@ -5,8 +5,10 @@ namespace ProductService.Model.Models;
 
 public class Product
 {
+	[BsonElement("_id")]
 	[BsonId]
-	public ObjectId Id { get; set; }
+	[BsonRepresentation(BsonType.ObjectId)]
+	public string Id { get; set; }
 
 	[BsonElement("name")]
 	public string Name { get; set; }

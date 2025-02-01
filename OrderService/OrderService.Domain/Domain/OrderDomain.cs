@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using OrderService.Domain.Interface;
 using OrderService.Model.Dto;
+using OrderService.Model.Enum;
 using OrderService.Model.Extentions;
 using OrderService.Model.Models;
 using OrderService.Repository.Interface;
@@ -14,16 +15,19 @@ public class OrderDomain : IOrderDomain
 	private readonly IOrderRepository _orderRepository;
 	private readonly IOrderItemRepository _orderItemRepository;
 	private readonly IProductService _productService;
+	private readonly IPaymentService _paymentService;
 	private readonly ILogger<OrderDomain> _logger;
 
 	public OrderDomain(IUnitOfWork unitOfWork,
 		IOrderRepository orderRepository, ILogger<OrderDomain> logger,
 	IOrderItemRepository orderItemRepository,
-		IProductService productService)
+		IProductService productService,
+		IPaymentService paymentService)
 	{
 		_unitOfWork = unitOfWork;
 		_orderRepository = orderRepository;
 		_logger = logger;
+		_paymentService = paymentService;
 		_orderItemRepository = orderItemRepository;
 		_productService = productService;
 	}
@@ -51,6 +55,48 @@ public class OrderDomain : IOrderDomain
 		var orderResponse = order.ToResponse(totalAmount);
 
 		return orderResponse;
+	}
+
+	public async Task<OrderPaymentResponse> PayOrderAsync(OrderPaymentRequest request)
+	{
+		var order = await _orderRepository.GetByIdAsync(request.OrderId);
+		if (order == null)
+		{
+			throw new Exception("Order not found");
+		}
+
+
+		var totalAmount = await CalculateTotalAmount(order.Id);
+		var orderResponse = order.ToResponse(totalAmount);
+
+		var paymentDto = new PaymentDto
+		{
+			Amount = orderResponse.Amount,
+			PaymentMethod = request.PaymentMethod,
+			OrderId = orderResponse.Id
+		};
+
+		_logger.LogInformation("PaymentDto before processing: {PaymentDto}", paymentDto);
+
+		var processPayment = await _paymentService.ProcessPaymentAsync(paymentDto);
+
+		if (!processPayment)
+		{
+			throw new Exception("Payment processing failed");
+		}
+
+		orderResponse.OrderStatus = OrderStatus.Completed;
+		paymentDto.PaymentStatus = PaymentStatus.Completed;
+
+		var updateRequest = new UpdateOrderRequest
+		{
+			CustomerId = orderResponse.CustomerId,
+			OrderStatus = orderResponse.OrderStatus
+		};
+
+		await Update(orderResponse.Id, updateRequest);
+
+		return orderResponse.ToResponse(paymentDto);
 	}
 
 	public async Task<OrderResponse> AddAsync(OrderRequest orderRequest)
@@ -94,15 +140,15 @@ public class OrderDomain : IOrderDomain
 		var orderItems = await _orderItemRepository.GetByOrderIdAsync(orderId);
 		var productIds = orderItems.Select(oi => oi.ProductId).Distinct().ToList();
 
+		var products = await _productService.GetProductsByIdsAsync(productIds);
+		var productDict = products.ToDictionary(p => p.Id, p => p.Price);
+
 		decimal totalAmount = 0;
-		foreach (var productId in productIds)
+		foreach (var orderItem in orderItems)
 		{
-			var product = await _productService.GetProductByIdAsync(productId);
-			if (product != null)
+			if (productDict.TryGetValue(orderItem.ProductId, out var price))
 			{
-				totalAmount += orderItems
-					.Where(oi => oi.ProductId == productId)
-					.Sum(oi => oi.Quantity * product.Price);
+				totalAmount += orderItem.Quantity * price;
 			}
 		}
 

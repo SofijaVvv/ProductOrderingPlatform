@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using OrderService.Service.Event;
+using OrderService.Infrastructure.Event;
 
-namespace OrderService.Service.Services;
+namespace OrderService.Infrastructure;
 
 public class EventBusSubscriberService : IHostedService
 {

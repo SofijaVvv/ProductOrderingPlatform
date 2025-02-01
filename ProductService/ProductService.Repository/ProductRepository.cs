@@ -23,9 +23,14 @@ public class ProductRepository : IProductRepository
 
 	public async Task<Product?> GetByIdAsync(string id)
 	{
-		var objectId = new ObjectId(id);
-		return await _collection.Find(p => p.Id == objectId).FirstOrDefaultAsync();
+		return await _collection.Find(p => p.Id == id).FirstOrDefaultAsync();
 	}
+
+	public async Task<List<Product>> GetByIdsAsync(List<string> ids)
+    {
+        var filter = Builders<Product>.Filter.In(p => p.Id, ids);
+        return await _collection.Find(filter).ToListAsync();
+    }
 
 	public async Task AddAsync(Product product)
 	{
@@ -34,8 +39,7 @@ public class ProductRepository : IProductRepository
 
 	public async Task<bool> DeleteAsync(string id)
 	{
-		var objectId = new ObjectId(id);
-		var result = await _collection.DeleteOneAsync(p => p.Id == objectId);
+		var result = await _collection.DeleteOneAsync(p => p.Id == id);
 		return result.DeletedCount > 0;
 	}
 
