@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PaymentService.Domain.Interface;
 using PaymentService.Model.Dto;
+using PaymentService.Model.Enum;
 using PaymentService.Model.Exceptions;
 using PaymentService.Model.Extenetions;
 using PaymentService.Model.Models;
@@ -43,10 +44,20 @@ public class PaymentDomain : IPaymentDomain
 
 	public async Task<Payment> AddAsync(PaymentRequest paymentRequest)
 	{
-		await _paymentProcessing.ProcessPaymentAsync(paymentRequest);
-
 		var payment = paymentRequest.ToPayment();
 		payment.CreatedAt = DateTime.UtcNow;
+		payment.PaymentStatus = PaymentStatus.Failed;
+
+		try
+		{
+			await _paymentProcessing.ProcessPaymentAsync(paymentRequest);
+			payment.PaymentStatus = PaymentStatus.Completed;
+
+		}
+		catch(Exception ex)
+		{
+			_logger.LogError(ex, "Payment processing failed for Order {OrderId}", paymentRequest.OrderId);
+		}
 
 		_paymentRepository.Add(payment);
 		await _paymentRepository.SaveAsync();
