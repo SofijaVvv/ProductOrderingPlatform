@@ -15,18 +15,18 @@ public class PaymentDomain : IPaymentDomain
 {
 	private readonly IPaymentRepository _paymentRepository;
 	private readonly IEventPublisher _eventPublisher;
-	private readonly string _defaultCurrency;
+	private readonly IPaymentProcessing _paymentProcessing;
 	private readonly ILogger<PaymentDomain> _logger;
 
 	public PaymentDomain(IPaymentRepository paymentRepository,
 		IEventPublisher eventPublisher,
-		ILogger<PaymentDomain> logger, IConfiguration configuration)
+		ILogger<PaymentDomain> logger,
+		IPaymentProcessing paymentProcessing)
 	{
 		_paymentRepository = paymentRepository;
-		_defaultCurrency = configuration["PaymentConfig:DefaultCurrency"]
-		                   ?? throw new InvalidOperationException("PaymentConfig:DefaultCurrency is missing");
 		_eventPublisher = eventPublisher;
 		_logger = logger;
+		_paymentProcessing = paymentProcessing;
 	}
 
 	public async Task<List<Payment>> GetAllAsync()
@@ -43,41 +43,11 @@ public class PaymentDomain : IPaymentDomain
 
 	public async Task<Payment> AddAsync(PaymentRequest paymentRequest)
 	{
-		var paymentMethod = paymentRequest.PaymentMethod;
-
-		var options = new PaymentIntentCreateOptions
-		{
-			Amount = (long)(paymentRequest.Amount * 100),
-			Currency = _defaultCurrency,
-			PaymentMethodTypes = new List<string> { "card" }
-		};
-
-		PaymentIntent paymentIntent;
-
-		try
-		{
-			var service = new PaymentIntentService();
-			paymentIntent = await service.CreateAsync(options);
-
-			paymentIntent = await service.ConfirmAsync(paymentIntent.Id, new PaymentIntentConfirmOptions
-			{
-				PaymentMethod = paymentMethod
-			});
-
-			if (paymentIntent.Status != "succeeded")
-			{
-				throw new Exception("Payment confirmation failed");
-			}
-		}
-		catch (StripeException ex)
-		{
-			_logger.LogError("Stripe error: {ErrorMessage}", ex.Message);
-			_logger.LogError("Stripe error details: {ErrorDetails}", ex.StackTrace);
-			throw new Exception($"Payment creation failed: {ex.Message}", ex);
-		}
+		await _paymentProcessing.ProcessPaymentAsync(paymentRequest);
 
 		var payment = paymentRequest.ToPayment();
 		payment.CreatedAt = DateTime.UtcNow;
+
 		_paymentRepository.Add(payment);
 		await _paymentRepository.SaveAsync();
 

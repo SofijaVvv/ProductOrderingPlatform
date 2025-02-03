@@ -1,13 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using PaymentService.Domain.Domain;
 using PaymentService.Domain.Interface;
-using PaymentService.Model.Models;
 using PaymentService.Repository.Context;
 using PaymentService.Repository.Interface;
 using PaymentService.Repository.Repository;
 using PyamentService.Api.Filter;
 using PymentService.Infrastructure.Event;
 using PymentService.Infrastructure.Interface;
+using PymentService.Infrastructure.Stripe;
 using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +22,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => { options.UseMySq
 
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentDomain, PaymentDomain>();
+builder.Services.AddScoped<IPaymentProcessing, PaymentProcessing>();
 builder.Services.AddSingleton<IEventPublisher, EventPublisher>();
 builder.Services.AddLogging();
 
