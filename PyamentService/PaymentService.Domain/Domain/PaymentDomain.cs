@@ -42,7 +42,7 @@ public class PaymentDomain : IPaymentDomain
 		return payment;
 	}
 
-	public async Task<Payment> AddAsync(PaymentRequest paymentRequest)
+	public async Task AddAsync(PaymentRequest paymentRequest)
 	{
 		var payment = paymentRequest.ToPayment();
 		payment.CreatedAt = DateTime.UtcNow;
@@ -74,8 +74,6 @@ public class PaymentDomain : IPaymentDomain
 
 		_eventPublisher.PublishAsync("payment.status",
 			paymentEventMessage);
-
-		return payment;
 	}
 
 	public async Task<Refund> RefundAsync(string paymentIntentId, decimal amount )

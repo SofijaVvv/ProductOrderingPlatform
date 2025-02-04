@@ -5,10 +5,6 @@ namespace OrderService.Model.Extentions;
 
 public static class OrderPaymentExtentions
 {
-
-
-
-
 	public static OrderPaymentResponse ToResponse(this OrderResponse response, PaymentDto payment)
 	{
 		return new OrderPaymentResponse

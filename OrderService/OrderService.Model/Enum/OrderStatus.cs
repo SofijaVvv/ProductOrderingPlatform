@@ -2,8 +2,9 @@ namespace OrderService.Model.Enum;
 
 public enum OrderStatus
 {
-	Completed,
-	Cancelled,
+	Pending = 0,
+	Completed = 1,
+	Failed = 2,
 	Returned,
-	Pending
+
 }

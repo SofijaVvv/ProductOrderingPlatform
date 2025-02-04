@@ -65,7 +65,6 @@ public class OrderDomain : IOrderDomain
 			throw new Exception("Order not found");
 		}
 
-
 		var totalAmount = await CalculateTotalAmount(order.Id);
 		var orderResponse = order.ToResponse(totalAmount);
 
@@ -73,7 +72,8 @@ public class OrderDomain : IOrderDomain
 		{
 			Amount = orderResponse.Amount,
 			PaymentMethod = request.PaymentMethod,
-			OrderId = orderResponse.Id
+			OrderId = orderResponse.Id,
+			PaymentStatus = PaymentStatus.Pending
 		};
 
 		_logger.LogInformation("PaymentDto before processing: {PaymentDto}", paymentDto);
@@ -84,17 +84,6 @@ public class OrderDomain : IOrderDomain
 		{
 			throw new Exception("Payment processing failed");
 		}
-
-		orderResponse.OrderStatus = OrderStatus.Completed;
-		paymentDto.PaymentStatus = PaymentStatus.Completed;
-
-		var updateRequest = new UpdateOrderRequest
-		{
-			CustomerId = orderResponse.CustomerId,
-			OrderStatus = orderResponse.OrderStatus
-		};
-
-		await Update(orderResponse.Id, updateRequest);
 
 		return orderResponse.ToResponse(paymentDto);
 	}

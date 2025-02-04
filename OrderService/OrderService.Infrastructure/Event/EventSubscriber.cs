@@ -1,9 +1,14 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OrderService.Domain.Interface;
 using OrderService.Infrastructure.ConfigModel;
 using OrderService.Model.Dto;
+using OrderService.Model.Enum;
+using OrderService.Model.Extentions;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -13,12 +18,14 @@ public class EventSubscriber
 {
 	private readonly ILogger<EventSubscriber> _logger;
 	private readonly RabbitMqConfig _config;
+	private readonly IServiceProvider _serviceProvider;
 
-	public EventSubscriber(ILogger<EventSubscriber> logger, IConfiguration configuration)
+	public EventSubscriber(ILogger<EventSubscriber> logger, IConfiguration configuration, IServiceProvider serviceProvider)
 	{
 		_logger = logger;
 		_config = configuration.GetSection("RabbitMqConfig").Get<RabbitMqConfig>() ??
 		          throw new InvalidOperationException("RabbitMqConfig is missing");
+		_serviceProvider = serviceProvider;
 	}
 
 	public void Subscribe()
@@ -50,30 +57,48 @@ public class EventSubscriber
 		);
 
 		var consumer = new EventingBasicConsumer(channel);
-		consumer.Received += (_, ea) =>
+		consumer.Received += async (_, ea) =>
 		{
 			try
 			{
 				var body = ea.Body.ToArray();
 				var message = Encoding.UTF8.GetString(body);
-
 				_logger.LogInformation($"Received raw message: {message}");
 
-				// var options = new JsonSerializerOptions
-				// {
-				// 	PropertyNameCaseInsensitive = true,
-				// };
+				var options = new JsonSerializerOptions
+				{
+					Converters = { new JsonStringEnumConverter()},
+					NumberHandling = JsonNumberHandling.AllowReadingFromString,
+					PropertyNameCaseInsensitive = true
+				};
 
-				var paymentEvent = JsonSerializer.Deserialize<PaymentEventMessage>(message);
+				var paymentEvent = JsonSerializer.Deserialize<PaymentDto>(message, options);
 				if (paymentEvent != null)
 				{
-					_logger.LogInformation($"Deserialized message: {message}");
-					channel.BasicAck(ea.DeliveryTag, false);
-				}
-				else
-				{
-					_logger.LogWarning("Received a null message after deserialization!");
-					channel.BasicNack(ea.DeliveryTag, false, true);
+					_logger.LogInformation($"Deserialized PaymentStatus: {paymentEvent.PaymentStatus}");
+					_logger.LogInformation($"PaymentStatus Enum Name: {paymentEvent.PaymentStatus.ToString()}");
+
+					using (var scope = _serviceProvider.CreateScope())
+					{
+						var orderDomain = scope.ServiceProvider.GetRequiredService<IOrderDomain>();
+
+						var orderResponse = await orderDomain.GetByIdAsync(paymentEvent.OrderId);
+
+
+						var orderStatus = paymentEvent.PaymentStatus switch
+						{
+							PaymentStatus.Completed => OrderStatus.Completed,
+							PaymentStatus.Failed => OrderStatus.Failed,
+							_ => OrderStatus.Pending
+						};
+
+						await orderDomain.Update(orderResponse.Id, new UpdateOrderRequest
+						{
+							OrderStatus = orderStatus,
+							CustomerId = orderResponse.CustomerId
+						});
+
+					}
 				}
 			}
 			catch (Exception ex)

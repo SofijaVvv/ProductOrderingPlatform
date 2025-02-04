@@ -37,12 +37,12 @@ public class PaymentController : ControllerBase
 	}
 
 	[HttpPost]
-	[ProducesResponseType(StatusCodes.Status201Created, Type = typeof(PaymentResponse))]
+	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	public async Task<IActionResult> CreatePayment([FromBody] PaymentRequest paymentRequest)
 	{
-		var payment = await _paymentDomain.AddAsync(paymentRequest);
+		await _paymentDomain.AddAsync(paymentRequest);
 
-		return CreatedAtAction(nameof(GetPaymentById), new { id = payment.Id }, payment.ToResponse());
+		return NoContent();
 	}
 
 	[HttpPost("Refund")]
