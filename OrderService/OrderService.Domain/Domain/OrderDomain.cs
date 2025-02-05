@@ -18,9 +18,11 @@ public class OrderDomain : IOrderDomain
 	private readonly IPaymentService _paymentService;
 	private readonly ILogger<OrderDomain> _logger;
 
-	public OrderDomain(IUnitOfWork unitOfWork,
-		IOrderRepository orderRepository, ILogger<OrderDomain> logger,
-	IOrderItemRepository orderItemRepository,
+	public OrderDomain(
+		IUnitOfWork unitOfWork,
+		IOrderRepository orderRepository,
+		ILogger<OrderDomain> logger,
+		IOrderItemRepository orderItemRepository,
 		IProductService productService,
 		IPaymentService paymentService)
 	{
@@ -124,7 +126,7 @@ public class OrderDomain : IOrderDomain
 		return true;
 	}
 
-	public async Task<decimal> CalculateTotalAmount(int orderId)
+	private async Task<decimal> CalculateTotalAmount(int orderId)
 	{
 		var orderItems = await _orderItemRepository.GetByOrderIdAsync(orderId);
 		var productIds = orderItems.Select(oi => oi.ProductId).Distinct().ToList();
@@ -143,5 +145,4 @@ public class OrderDomain : IOrderDomain
 
 		return totalAmount;
 	}
-
 }
