@@ -11,7 +11,6 @@ public class ApplicationDbContext : DbContext
 		: base(options)
 	{
 	}
-
 	public DbSet<Payment> Payments { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)

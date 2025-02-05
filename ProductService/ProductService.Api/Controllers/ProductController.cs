@@ -68,5 +68,4 @@ public class ProductController : ControllerBase
 		await _productDomain.DeleteAsync(id);
 		return NoContent();
 	}
-
 }

@@ -1,4 +1,3 @@
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace ProductService.Model.Dto;
 

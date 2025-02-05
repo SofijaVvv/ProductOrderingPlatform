@@ -1,4 +1,3 @@
-using ProductService.Domain.ImageHandler;
 using ProductService.Domain.Interfaces;
 using ProductService.Model.Dto;
 using ProductService.Model.Exceptions;
@@ -6,17 +5,17 @@ using ProductService.Model.Extentions;
 using ProductService.Model.Models;
 using ProductService.Repository.Interfaces;
 
-namespace ProductService.Domain;
+namespace ProductService.Domain.Domain;
 
 public class ProductDomain : IProductDomain
 {
 	private readonly IProductRepository _productRepository;
-	private readonly IImageProcessor _imageProcessor;
+	private readonly IImageFileHandler _imageFileHandler;
 
-	public ProductDomain(IProductRepository productRepository,IImageProcessor imageProcessor)
+	public ProductDomain(IProductRepository productRepository,IImageFileHandler imageFileHandler)
 	{
 		_productRepository = productRepository;
-		_imageProcessor = imageProcessor;
+		_imageFileHandler = imageFileHandler;
 	}
 
 	public async Task<List<ProductResponse>> GetAllAsync()
@@ -38,7 +37,7 @@ public class ProductDomain : IProductDomain
 		Product product = productRequest.ToProduct();
 		if (!string.IsNullOrEmpty(product.Image))
 		{
-			string fileLocation = await _imageProcessor.SaveImageAsync(product.Image, productRequest.ImageFileName);
+			string fileLocation = await _imageFileHandler.StoreImageFromBase64Async(product.Image, productRequest.ImageFileName);
 			product.Image = fileLocation;
 		}
 

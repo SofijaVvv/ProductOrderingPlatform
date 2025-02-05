@@ -2,9 +2,9 @@ using ProductService.Domain.Interfaces;
 
 namespace ProductService.Domain.ImageHandler;
 
-public class ImageProcessor : IImageProcessor
+public class ImageFileHandler : IImageFileHandler
 {
-	public async Task<string> SaveImageAsync(string base64Image, string? imageFileName)
+	public async Task<string> StoreImageFromBase64Async(string base64Image, string? imageFileName)
 	{
 		var imagesDirectory = Path.Combine(Directory.GetCurrentDirectory(), "images");
 
@@ -21,7 +21,6 @@ public class ImageProcessor : IImageProcessor
 			var imageBytes = Convert.FromBase64String(base64String);
 
 			var fileExtension = GetImageExtension(imageBytes);
-
 			if (fileExtension == null)
 			{
 				throw new ArgumentException("Invalid image format. Only PNG and JPG are allowed.");

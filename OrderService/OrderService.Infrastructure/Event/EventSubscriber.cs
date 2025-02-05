@@ -24,7 +24,7 @@ public class EventSubscriber
 	{
 		_logger = logger;
 		_config = configuration.GetSection("RabbitMqConfig").Get<RabbitMqConfig>() ??
-		          throw new InvalidOperationException("RabbitMqConfig is missing");
+		          throw new InvalidOperationException("Configuration section 'RabbitMqConfig' is missing or invalid");
 		_serviceProvider = serviceProvider;
 	}
 

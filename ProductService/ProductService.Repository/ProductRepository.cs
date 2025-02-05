@@ -1,4 +1,3 @@
-using MongoDB.Bson;
 using MongoDB.Driver;
 using ProductService.Model.Models;
 using ProductService.Repository.Interfaces;
@@ -43,7 +42,6 @@ public class ProductRepository : IProductRepository
 		return result.DeletedCount > 0;
 	}
 
-
 	public async Task UpdateAsync(Product product)
 	{
 		var filter = Builders<Product>.Filter.Eq(p => p.Id, product.Id);
@@ -56,6 +54,4 @@ public class ProductRepository : IProductRepository
 
 		 await _collection.UpdateOneAsync(filter, update);
 	}
-
-
 }
