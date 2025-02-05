@@ -45,12 +45,5 @@ public class PaymentController : ControllerBase
 		return NoContent();
 	}
 
-	[HttpDelete("{id}")]
-	[ProducesResponseType(StatusCodes.Status204NoContent)]
-	public async Task<ActionResult> DeletePayment(int id)
-	{
-		await _paymentDomain.DeleteAsync(id);
-		return NoContent();
-	}
 
 }

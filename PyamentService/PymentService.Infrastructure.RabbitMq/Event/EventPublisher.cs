@@ -16,7 +16,8 @@ public class EventPublisher : IEventPublisher
 	public EventPublisher(ILogger<EventPublisher> logger, IConfiguration configuration)
 	{
 		_logger = logger;
-		_config = configuration.GetSection("RabbitMqConfig").Get<RabbitMqConfig>() ?? throw new InvalidOperationException("RabbitMqConfig is missing");
+		_config = configuration.GetSection("RabbitMqConfig").Get<RabbitMqConfig>()
+		          ?? throw new InvalidOperationException("Configuration section 'RabbitMqConfig' is missing or invalid");
 	}
 
 	public  void PublishAsync(string topic, object message)

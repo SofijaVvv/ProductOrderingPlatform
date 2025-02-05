@@ -4,6 +4,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <NoWarn>$(NoWarn);CS8618;CS8604;CS8762;CS8600</NoWarn>
         <RootNamespace>PymentService.Infrastructure</RootNamespace>
     </PropertyGroup>
 
@@ -19,5 +20,5 @@
     <ItemGroup>
       <ProjectReference Include="..\PaymentService.Model\PaymentService.Model.csproj" />
     </ItemGroup>
-    
+
 </Project>

@@ -9,6 +9,4 @@ public interface IPaymentDomain
 	Task<List<Payment>> GetAllAsync();
 	Task<Payment> GetByIdAsync(int id);
 	Task AddAsync(PaymentRequest paymentRequest);
-	Task<bool> DeleteAsync(int id);
-	Task UpdateAsync(int id, UpdatePaymentRequest updatePaymentRequest);
 }

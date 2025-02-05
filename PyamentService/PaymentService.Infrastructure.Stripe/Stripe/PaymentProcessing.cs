@@ -33,8 +33,8 @@ public class PaymentProcessing : IPaymentProcessing
 		try
 		{
 			var service = new PaymentIntentService();
-			paymentIntent = await service.CreateAsync(options);
 
+			paymentIntent = await service.CreateAsync(options);
 			paymentIntent = await service.ConfirmAsync(paymentIntent.Id, new PaymentIntentConfirmOptions
 			{
 				PaymentMethod = paymentMethod

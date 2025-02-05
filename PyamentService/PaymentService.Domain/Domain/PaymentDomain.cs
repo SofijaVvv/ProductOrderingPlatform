@@ -8,7 +8,6 @@ using PaymentService.Model.Extenetions;
 using PaymentService.Model.Models;
 using PaymentService.Repository.Interface;
 using PymentService.Infrastructure.Interface;
-using Stripe;
 
 namespace PaymentService.Domain.Domain;
 
@@ -75,26 +74,4 @@ public class PaymentDomain : IPaymentDomain
 		_eventPublisher.PublishAsync("payment.status",
 			paymentEventMessage);
 	}
-
-	public async Task<bool> DeleteAsync(int id)
-	{
-		var payment = await _paymentRepository.GetByIdAsync(id);
-		if (payment == null) throw new NotFoundException("Payment not found");
-		await _paymentRepository.DeleteAsync(id);
-		return true;
-	}
-
-	public async Task UpdateAsync(int id, UpdatePaymentRequest updatePaymentRequest)
-	{
-		var payment = await _paymentRepository.GetByIdAsync(id);
-		if (payment == null) throw new NotFoundException("Payment not found");
-
-		payment.Amount = updatePaymentRequest.Amount;
-		payment.PaymentStatus = updatePaymentRequest.PaymentStatus;
-		payment.PaymentMethod = updatePaymentRequest.PaymentMethod;
-
-		_paymentRepository.Update(payment);
-		await _paymentRepository.SaveAsync();
-	}
-
 }

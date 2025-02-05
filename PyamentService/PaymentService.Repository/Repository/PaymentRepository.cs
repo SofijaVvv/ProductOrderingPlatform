@@ -29,21 +29,6 @@ public class PaymentRepository : IPaymentRepository
 		_context.Payments.Add(product);
 	}
 
-	public async Task<bool> DeleteAsync(int id)
-	{
-		var payment = await GetByIdAsync(id);
-
-		if (payment == null) return false;
-
-		_context.Payments.Remove(payment);
-		return true;
-	}
-
-	public void Update(Payment product)
-	{
-		_context.Payments.Update(product);
-	}
-
 	public async Task SaveAsync()
 	{
 		await _context.SaveChangesAsync();
