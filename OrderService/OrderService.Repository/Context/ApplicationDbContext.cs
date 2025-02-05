@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using OrderService.Model.Enum;
 using OrderService.Model.Models;
 
 namespace OrderService.Repository.Context;
@@ -31,5 +33,10 @@ public class ApplicationDbContext : DbContext
 				.IsRequired();
 		});
 
+		modelBuilder.Entity<Order>(entity =>
+		{
+			entity.Property(p => p.OrderStatus)
+				.HasConversion(new EnumToStringConverter<OrderStatus>());
+		});
 	}
 }

@@ -8,7 +8,6 @@ using OrderService.Domain.Interface;
 using OrderService.Infrastructure.ConfigModel;
 using OrderService.Model.Dto;
 using OrderService.Model.Enum;
-using OrderService.Model.Extentions;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -20,7 +19,8 @@ public class EventSubscriber
 	private readonly RabbitMqConfig _config;
 	private readonly IServiceProvider _serviceProvider;
 
-	public EventSubscriber(ILogger<EventSubscriber> logger, IConfiguration configuration, IServiceProvider serviceProvider)
+	public EventSubscriber(ILogger<EventSubscriber> logger, IConfiguration configuration,
+		IServiceProvider serviceProvider)
 	{
 		_logger = logger;
 		_config = configuration.GetSection("RabbitMqConfig").Get<RabbitMqConfig>() ??
@@ -34,26 +34,26 @@ public class EventSubscriber
 		{
 			HostName = _config.Host,
 			UserName = _config.UserName,
-			Password = _config.Password,
+			Password = _config.Password
 		};
 
 		var connection = factory.CreateConnection();
 		var channel = connection.CreateModel();
 
-		channel.ExchangeDeclare(exchange: "payment_exchange", type: ExchangeType.Topic);
+		channel.ExchangeDeclare("payment_exchange", ExchangeType.Topic);
 
 		channel.QueueDeclare(
-			queue: _config.QueueName,
-			durable: true,
-			exclusive: false,
-			autoDelete: false,
-			arguments: null
+			_config.QueueName,
+			true,
+			false,
+			false,
+			null
 		);
 
 		channel.QueueBind(
-			queue: _config.QueueName,
-			exchange: "payment_exchange",
-			routingKey: "payment.status"
+			_config.QueueName,
+			"payment_exchange",
+			"payment.status"
 		);
 
 		var consumer = new EventingBasicConsumer(channel);
@@ -67,7 +67,7 @@ public class EventSubscriber
 
 				var options = new JsonSerializerOptions
 				{
-					Converters = { new JsonStringEnumConverter()},
+					Converters = { new JsonStringEnumConverter() },
 					NumberHandling = JsonNumberHandling.AllowReadingFromString,
 					PropertyNameCaseInsensitive = true
 				};
@@ -97,7 +97,6 @@ public class EventSubscriber
 							OrderStatus = orderStatus,
 							CustomerId = orderResponse.CustomerId
 						});
-
 					}
 				}
 			}
@@ -109,13 +108,12 @@ public class EventSubscriber
 		};
 
 		channel.BasicConsume(
-			queue: _config.QueueName,
-			autoAck: false,
-			consumer: consumer
+			_config.QueueName,
+			false,
+			consumer
 		);
 
 
 		_logger.LogInformation("Subscribed to RabbitMQ queue");
 	}
-
 }

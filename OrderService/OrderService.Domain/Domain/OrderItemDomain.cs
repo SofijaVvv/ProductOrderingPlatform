@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
 using OrderService.Domain.Interface;
 using OrderService.Model.Dto;
+using OrderService.Model.Exceptions;
 using OrderService.Model.Extentions;
-using OrderService.Model.Models;
 using OrderService.Repository.Interface;
 using OrderService.Service.Interface;
 
@@ -10,11 +10,11 @@ namespace OrderService.Domain.Domain;
 
 public class OrderItemDomain : IOrderItemDomain
 {
-
-	private readonly IUnitOfWork _unitOfWork;
+	private readonly ILogger<OrderItemDomain> _logger;
 	private readonly IOrderItemRepository _orderItemRepository;
 	private readonly IProductService _productService;
-	private readonly ILogger<OrderItemDomain> _logger;
+
+	private readonly IUnitOfWork _unitOfWork;
 
 	public OrderItemDomain(IUnitOfWork unitOfWork,
 		IOrderItemRepository orderItemRepository,
@@ -36,10 +36,7 @@ public class OrderItemDomain : IOrderItemDomain
 		foreach (var productId in productIds)
 		{
 			var product = await _productService.GetProductByIdAsync(productId);
-			if (product != null)
-			{
-				productMapping[productId] = product;
-			}
+			if (product != null) productMapping[productId] = product;
 		}
 
 		return orderItems.ToResponse(productMapping);
@@ -48,10 +45,10 @@ public class OrderItemDomain : IOrderItemDomain
 	public async Task<OrderItemResponse> GetByIdAsync(int id)
 	{
 		var orderItem = await _orderItemRepository.GetByIdAsync(id);
-		if (orderItem == null) throw new Exception("orderItem not found");
+		if (orderItem == null) throw new NotFoundException("orderItem not found");
 
 		var product = await _productService.GetProductByIdAsync(orderItem.ProductId);
-		if (product == null) throw new Exception("Product not found");
+		if (product == null) throw new NotFoundException("Product not found");
 
 
 		var orderItemResponse = orderItem.ToResponse(new ProductDto
@@ -62,19 +59,15 @@ public class OrderItemDomain : IOrderItemDomain
 			Category = product.Category
 		});
 
-
 		return orderItemResponse;
 	}
 
 	public async Task<OrderItemResponse> AddAsync(OrderItemRequest orderItemRequest)
 	{
 		var product = await _productService.GetProductByIdAsync(orderItemRequest.ProductId);
-		if (product == null)
-		{
-			throw new Exception($"Product with ID {orderItemRequest.ProductId} not found.");
-		}
+		if (product == null) throw new NotFoundException($"Product with ID {orderItemRequest.ProductId} not found.");
 
-		OrderItem orderItem = orderItemRequest.ToOrderItem();
+		var orderItem = orderItemRequest.ToOrderItem();
 		orderItem.CreatedAt = DateTime.UtcNow;
 
 		var orderItemResponse = orderItem.ToResponse(new ProductDto
@@ -85,7 +78,7 @@ public class OrderItemDomain : IOrderItemDomain
 			Category = product.Category
 		});
 
-		 _orderItemRepository.AddAsync(orderItem);
+		_orderItemRepository.AddAsync(orderItem);
 
 		await _unitOfWork.SaveAsync();
 
@@ -122,7 +115,4 @@ public class OrderItemDomain : IOrderItemDomain
 
 		return true;
 	}
-
-
-
 }

@@ -10,6 +10,5 @@ public interface IPaymentDomain
 	Task<Payment> GetByIdAsync(int id);
 	Task AddAsync(PaymentRequest paymentRequest);
 	Task<bool> DeleteAsync(int id);
-	Task<Refund> RefundAsync(string paymentIntentId, decimal amount );
 	Task UpdateAsync(int id, UpdatePaymentRequest updatePaymentRequest);
 }

@@ -1,7 +1,7 @@
 using PaymentService.Model.Dto;
 using Stripe;
 
-namespace PymentService.Infrastructure.Interface;
+namespace PaymentService.Infrastructure.Stripe.Interface;
 
 public interface IPaymentProcessing
 {

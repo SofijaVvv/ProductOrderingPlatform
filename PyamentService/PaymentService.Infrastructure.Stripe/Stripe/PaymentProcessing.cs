@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using PaymentService.Infrastructure.Stripe.Interface;
 using PaymentService.Model.Dto;
-using PymentService.Infrastructure.Interface;
 using Stripe;
 
-namespace PymentService.Infrastructure.Stripe;
+namespace PaymentService.Infrastructure.Stripe.Stripe;
 
 public class PaymentProcessing : IPaymentProcessing
 {

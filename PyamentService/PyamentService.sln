@@ -8,7 +8,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Model", "Pay
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Domain", "PaymentService.Domain\PaymentService.Domain.csproj", "{6CDEF6BF-0EBD-49D6-BE14-B69A51042E05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PymentService.Infrastructure", "PymentService.Infrastructure\PymentService.Infrastructure.csproj", "{DCBB4E96-F5FE-4CD8-A1EE-0A36E0824886}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PymentService.Infrastructure.RabbitMq", "PymentService.Infrastructure.RabbitMq\PymentService.Infrastructure.RabbitMq.csproj", "{DCBB4E96-F5FE-4CD8-A1EE-0A36E0824886}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentService.Infrastructure.Stripe", "PaymentService.Infrastructure.Stripe\PaymentService.Infrastructure.Stripe.csproj", "{71641F88-BBA0-41BE-98C2-C70D13BCDFD0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,5 +38,9 @@ Global
 		{DCBB4E96-F5FE-4CD8-A1EE-0A36E0824886}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCBB4E96-F5FE-4CD8-A1EE-0A36E0824886}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DCBB4E96-F5FE-4CD8-A1EE-0A36E0824886}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71641F88-BBA0-41BE-98C2-C70D13BCDFD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71641F88-BBA0-41BE-98C2-C70D13BCDFD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71641F88-BBA0-41BE-98C2-C70D13BCDFD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71641F88-BBA0-41BE-98C2-C70D13BCDFD0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

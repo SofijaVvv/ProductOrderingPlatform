@@ -11,9 +11,8 @@ public static class OrderItemExtentions
 		{
 			OrderId = request.OrderId,
 			ProductId = request.ProductId,
-			Quantity = request.Quantity,
+			Quantity = request.Quantity
 		};
-
 	}
 
 	public static OrderItemResponse ToResponse(this OrderItem orderItem, ProductDto product)
@@ -33,20 +32,15 @@ public static class OrderItemExtentions
 				Price = product.Price
 			}
 		};
-
 	}
 
-	public static List<OrderItemResponse> ToResponse(this List<OrderItem> orderItems, Dictionary<string, ProductDto> productMapping)
+	public static List<OrderItemResponse> ToResponse(this List<OrderItem> orderItems,
+		Dictionary<string, ProductDto> productMapping)
 	{
 		return orderItems.Select(orderItem =>
 		{
-			if (productMapping.TryGetValue(orderItem.ProductId, out var product))
-			{
-				return orderItem.ToResponse(product);
-			}
+			if (productMapping.TryGetValue(orderItem.ProductId, out var product)) return orderItem.ToResponse(product);
 			throw new Exception($"Product with ID {orderItem.ProductId} not found in product mapping.");
 		}).ToList();
 	}
-
-
 }

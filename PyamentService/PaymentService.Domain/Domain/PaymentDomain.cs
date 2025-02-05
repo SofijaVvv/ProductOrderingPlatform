@@ -1,6 +1,6 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PaymentService.Domain.Interface;
+using PaymentService.Infrastructure.Stripe.Interface;
 using PaymentService.Model.Dto;
 using PaymentService.Model.Enum;
 using PaymentService.Model.Exceptions;
@@ -66,7 +66,7 @@ public class PaymentDomain : IPaymentDomain
 		{
 			Id = payment.Id,
 			Amount = payment.Amount,
-			PaymentStatus = payment.PaymentStatus,
+			PaymentStatus = payment.PaymentStatus.ToString(),
 			OrderId = payment.OrderId,
 			PaymentMethod = payment.PaymentMethod,
 			CreatedAt = payment.CreatedAt
@@ -75,36 +75,6 @@ public class PaymentDomain : IPaymentDomain
 		_eventPublisher.PublishAsync("payment.status",
 			paymentEventMessage);
 	}
-
-	public async Task<Refund> RefundAsync(string paymentIntentId, decimal amount )
-	{
-		var refundOptions = new RefundCreateOptions
-		{
-			PaymentIntent = paymentIntentId,
-		};
-
-		if (amount > 0)
-		{
-			refundOptions.Amount = (long)(amount * 100);
-		}
-
-		var refundService = new RefundService();
-
-		try
-		{
-			var refund = await refundService.CreateAsync(refundOptions);
-			_logger.LogInformation("Refund created successfully for PaymentIntent: {PaymentIntentId}", paymentIntentId);
-			return refund;
-		}
-		catch (StripeException ex)
-		{
-			_logger.LogError("Stripe refund error: {ErrorMessage}", ex.Message);
-			_logger.LogError("Stripe error details: {ErrorDetails}", ex.StackTrace);
-			throw new Exception($"Refund creation failed: {ex.Message}", ex);
-		}
-	}
-
-
 
 	public async Task<bool> DeleteAsync(int id)
 	{

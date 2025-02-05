@@ -1,6 +1,7 @@
-using Microsoft.Extensions.Logging;
 using OrderService.Domain.Interface;
 using OrderService.Model.Dto;
+using OrderService.Model.Exceptions;
+using OrderService.Model.Extentions;
 using OrderService.Model.Models;
 using OrderService.Repository.Interface;
 
@@ -8,18 +9,14 @@ namespace OrderService.Domain.Domain;
 
 public class CustomerDomain : ICustomerDomain
 {
-	private readonly IUnitOfWork _unitOfWork;
 	private readonly ICustomerRepository _customerRepository;
-	private readonly ILogger<CustomerDomain> _logger;
+	private readonly IUnitOfWork _unitOfWork;
 
-	public CustomerDomain(ICustomerRepository customerRepository,
-		ILogger<CustomerDomain> logger, IUnitOfWork unitOfWork)
+	public CustomerDomain(ICustomerRepository customerRepository, IUnitOfWork unitOfWork)
 	{
 		_customerRepository = customerRepository;
-		_logger = logger;
 		_unitOfWork = unitOfWork;
 	}
-
 
 	public async Task<List<Customer>> GetAllAsync()
 	{
@@ -29,22 +26,25 @@ public class CustomerDomain : ICustomerDomain
 	public async Task<Customer> GetByIdAsync(int id)
 	{
 		var customer = await _customerRepository.GetByIdAsync(id);
-		if (customer == null) throw new Exception("Customer not found");
+		if (customer == null) throw new NotFoundException("Customer not found");
 
 		return customer;
 	}
 
-	public async Task<Customer> AddAsync(Customer customer)
+	public async Task<CustomerResponse> AddAsync(CustomerRequest customerRequest)
 	{
+		var customer = customerRequest.ToCustomer();
+
 		_customerRepository.AddAsync(customer);
 		await _unitOfWork.SaveAsync();
-		return customer;
+
+		return customer.ToResponse();
 	}
 
 	public async Task Update(int customerId, UpdateCustomerRequest updateCustomerRequest)
 	{
 		var customer = await _customerRepository.GetByIdAsync(customerId);
-		if (customer == null) throw new Exception("Customer not found");
+		if (customer == null) throw new NotFoundException("Customer not found");
 
 		customer.Name = updateCustomerRequest.Name;
 		customer.Email = updateCustomerRequest.Email;
@@ -58,9 +58,11 @@ public class CustomerDomain : ICustomerDomain
 	public async Task<bool> DeleteAsync(int id)
 	{
 		var customer = await _customerRepository.GetByIdAsync(id);
-		if (customer == null) throw new Exception("Customer not found");
+		if (customer == null) throw new NotFoundException("Customer not found");
 
 		await _customerRepository.DeleteAsync(id);
+		await _unitOfWork.SaveAsync();
+
 		return true;
 	}
 }

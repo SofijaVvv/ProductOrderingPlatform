@@ -18,8 +18,7 @@ public class OrderPaymentController : ControllerBase
 	[HttpPost("PayOrder")]
 	public async Task<IActionResult> PayOrderAsync([FromBody] OrderPaymentRequest request)
 	{
-			var response = await _orderDomain.PayOrderAsync(request);
-			return Ok(response);
+		var response = await _orderDomain.PayOrderAsync(request);
+		return Ok(response);
 	}
-
 }

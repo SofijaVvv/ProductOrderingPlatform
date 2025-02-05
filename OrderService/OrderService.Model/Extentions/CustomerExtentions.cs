@@ -12,9 +12,8 @@ public static class CustomerExtentions
 			Name = request.Name,
 			Phone = request.Phone,
 			Email = request.Email,
-			Address = request.Address,
+			Address = request.Address
 		};
-
 	}
 
 	public static CustomerResponse ToResponse(this Customer response)
@@ -25,13 +24,7 @@ public static class CustomerExtentions
 			Name = response.Name,
 			Phone = response.Phone,
 			Email = response.Email,
-			Address = response.Address,
+			Address = response.Address
 		};
-
-	}
-
-	public static List<CustomerResponse> ToResponse(this List<Customer> response)
-	{
-		return response.Select(customer => customer.ToResponse()).ToList();
 	}
 }

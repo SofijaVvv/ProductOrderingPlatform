@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using OrderService.Api.Filter;
 using OrderService.Domain.Domain;
@@ -14,7 +15,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers(options =>
-	options.Filters.Add<GlobalExceptionFilter>());
+	options.Filters.Add<GlobalExceptionFilter>()).AddJsonOptions(options =>
+		options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter())
+	);
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();

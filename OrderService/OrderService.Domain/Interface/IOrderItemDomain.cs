@@ -1,5 +1,4 @@
 using OrderService.Model.Dto;
-using OrderService.Model.Models;
 
 namespace OrderService.Domain.Interface;
 

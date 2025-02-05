@@ -26,7 +26,7 @@ public class OrderItemController : ControllerBase
 
 	[HttpGet("{id}")]
 	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderItemResponse))]
-	public async Task<ActionResult<OrderItemResponse>> GetOrderItemById(int id)
+	public async Task<ActionResult> GetOrderItemById(int id)
 	{
 		var orderItem = await _orderItemDomain.GetByIdAsync(id);
 		return Ok(orderItem);
@@ -59,5 +59,4 @@ public class OrderItemController : ControllerBase
 		await _orderItemDomain.DeleteAsync(id);
 		return NoContent();
 	}
-
 }

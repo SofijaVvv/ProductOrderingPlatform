@@ -1,7 +1,7 @@
-using Microsoft.Extensions.Logging;
 using OrderService.Domain.Interface;
 using OrderService.Model.Dto;
 using OrderService.Model.Enum;
+using OrderService.Model.Exceptions;
 using OrderService.Model.Extentions;
 using OrderService.Model.Models;
 using OrderService.Repository.Interface;
@@ -16,19 +16,16 @@ public class OrderDomain : IOrderDomain
 	private readonly IOrderItemRepository _orderItemRepository;
 	private readonly IProductService _productService;
 	private readonly IPaymentService _paymentService;
-	private readonly ILogger<OrderDomain> _logger;
 
 	public OrderDomain(
 		IUnitOfWork unitOfWork,
 		IOrderRepository orderRepository,
-		ILogger<OrderDomain> logger,
 		IOrderItemRepository orderItemRepository,
 		IProductService productService,
 		IPaymentService paymentService)
 	{
 		_unitOfWork = unitOfWork;
 		_orderRepository = orderRepository;
-		_logger = logger;
 		_paymentService = paymentService;
 		_orderItemRepository = orderItemRepository;
 		_productService = productService;
@@ -51,7 +48,7 @@ public class OrderDomain : IOrderDomain
 	public async Task<OrderResponse> GetByIdAsync(int id)
 	{
 		var order = await _orderRepository.GetByIdAsync(id);
-		if (order == null) throw new Exception("Order not found");
+		if (order == null) throw new NotFoundException("Order not found");
 
 		var totalAmount = await CalculateTotalAmount(order.Id);
 		var orderResponse = order.ToResponse(totalAmount);
@@ -62,10 +59,7 @@ public class OrderDomain : IOrderDomain
 	public async Task<OrderPaymentResponse> PayOrderAsync(OrderPaymentRequest request)
 	{
 		var order = await _orderRepository.GetByIdAsync(request.OrderId);
-		if (order == null)
-		{
-			throw new Exception("Order not found");
-		}
+		if (order == null) throw new Exception("Order not found");
 
 		var totalAmount = await CalculateTotalAmount(order.Id);
 		var orderResponse = order.ToResponse(totalAmount);
@@ -78,21 +72,15 @@ public class OrderDomain : IOrderDomain
 			PaymentStatus = PaymentStatus.Pending
 		};
 
-		_logger.LogInformation("PaymentDto before processing: {PaymentDto}", paymentDto);
-
 		var processPayment = await _paymentService.ProcessPaymentAsync(paymentDto);
-
-		if (!processPayment)
-		{
-			throw new Exception("Payment processing failed");
-		}
+		if (!processPayment) throw new Exception("Payment processing failed");
 
 		return orderResponse.ToResponse(paymentDto);
 	}
 
 	public async Task<OrderResponse> AddAsync(OrderRequest orderRequest)
 	{
-		Order order = orderRequest.ToOrder();
+		var order = orderRequest.ToOrder();
 		order.CreatedAt = DateTime.UtcNow;
 
 		_orderRepository.AddAsync(order);
@@ -123,6 +111,7 @@ public class OrderDomain : IOrderDomain
 
 		await _orderRepository.DeleteAsync(id);
 		await _unitOfWork.SaveAsync();
+
 		return true;
 	}
 
@@ -136,12 +125,8 @@ public class OrderDomain : IOrderDomain
 
 		decimal totalAmount = 0;
 		foreach (var orderItem in orderItems)
-		{
 			if (productDict.TryGetValue(orderItem.ProductId, out var price))
-			{
 				totalAmount += orderItem.Quantity * price;
-			}
-		}
 
 		return totalAmount;
 	}
