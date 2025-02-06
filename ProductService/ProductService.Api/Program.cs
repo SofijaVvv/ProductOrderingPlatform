@@ -42,6 +42,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 var mongoDbService = app.Services.GetRequiredService<MongoDataValidation>();
+mongoDbService.InitializeDatabase();
 mongoDbService.SetCollectionValidation();
 
 if (app.Environment.IsDevelopment())
@@ -50,8 +51,10 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
+if (!app.Environment.IsDevelopment())
+{
+	app.UseHttpsRedirection();
+}
 
 app.UseAuthorization();
 

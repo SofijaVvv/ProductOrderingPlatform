@@ -68,13 +68,23 @@ builder.Services.AddLogging();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+	var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+	dbContext.Database.Migrate();
+}
+
 if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 
 app.UseAuthorization();
 

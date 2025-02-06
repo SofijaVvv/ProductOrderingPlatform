@@ -12,6 +12,22 @@ public class MongoDataValidation
 		_database = database;
 	}
 
+	public void InitializeDatabase()
+	{
+		string collectionName = "Products";
+
+		var collectionList = _database.ListCollectionNames().ToList();
+		if (!collectionList.Contains(collectionName))
+		{
+			_database.CreateCollection(collectionName);
+			Console.WriteLine($"Collection '{collectionName}' created.");
+		}
+		else
+		{
+			Console.WriteLine($"Collection '{collectionName}' already exists.");
+		}
+	}
+
 	public void SetCollectionValidation()
 	{
 		var command = new BsonDocument
