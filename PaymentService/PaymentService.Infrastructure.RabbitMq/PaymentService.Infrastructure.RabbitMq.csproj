@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <NoWarn>$(NoWarn);CS8618;CS8604;CS8762;CS8600</NoWarn>
-        <RootNamespace>PymentService.Infrastructure</RootNamespace>
+        <RootNamespace>PaymentService.Infrastructure</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

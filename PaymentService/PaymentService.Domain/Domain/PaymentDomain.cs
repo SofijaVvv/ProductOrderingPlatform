@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using PaymentService.Domain.Interface;
+using PaymentService.Infrastructure.Interface;
 using PaymentService.Infrastructure.Stripe.Interface;
 using PaymentService.Model.Dto;
 using PaymentService.Model.Enum;
@@ -7,7 +8,6 @@ using PaymentService.Model.Exceptions;
 using PaymentService.Model.Extenetions;
 using PaymentService.Model.Models;
 using PaymentService.Repository.Interface;
-using PymentService.Infrastructure.Interface;
 
 namespace PaymentService.Domain.Domain;
 

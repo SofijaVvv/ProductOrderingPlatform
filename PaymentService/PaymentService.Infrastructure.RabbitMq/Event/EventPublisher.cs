@@ -2,11 +2,11 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using PymentService.Infrastructure.ConfigModel;
-using PymentService.Infrastructure.Interface;
+using PaymentService.Infrastructure.ConfigModel;
+using PaymentService.Infrastructure.Interface;
 using RabbitMQ.Client;
 
-namespace PymentService.Infrastructure.Event;
+namespace PaymentService.Infrastructure.Event;
 
 public class EventPublisher : IEventPublisher
 {

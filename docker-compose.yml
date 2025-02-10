@@ -74,7 +74,7 @@ services:
 
   paymentservice:
     build:
-      context: ./PyamentService
+      context: ./PaymentService
       dockerfile: Dockerfile
     image: paymentservice:latest
     ports:

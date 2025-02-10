@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using PaymentService.Model.Dto;
 using PaymentService.Model.Exceptions;
 
-namespace PyamentService.Api.Filter;
+namespace PaymentService.Api.Filter;
 
 public class GlobalExceptionFilter : IExceptionFilter
 {

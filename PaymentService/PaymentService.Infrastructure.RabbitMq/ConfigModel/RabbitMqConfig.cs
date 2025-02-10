@@ -1,4 +1,4 @@
-namespace PymentService.Infrastructure.ConfigModel;
+namespace PaymentService.Infrastructure.ConfigModel;
 
 public class RabbitMqConfig
 {

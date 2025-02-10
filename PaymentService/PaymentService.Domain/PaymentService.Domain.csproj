@@ -7,10 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\PaymentService.Infrastructure.RabbitMq\PaymentService.Infrastructure.RabbitMq.csproj" />
       <ProjectReference Include="..\PaymentService.Infrastructure.Stripe\PaymentService.Infrastructure.Stripe.csproj" />
       <ProjectReference Include="..\PaymentService.Model\PaymentService.Model.csproj" />
       <ProjectReference Include="..\PaymentService.Repository\PaymentService.Repository.csproj" />
-      <ProjectReference Include="..\PymentService.Infrastructure.RabbitMq\PymentService.Infrastructure.RabbitMq.csproj" />
     </ItemGroup>
 
     <ItemGroup>
