@@ -14,16 +14,17 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
 		_context = context;
 	}
 
-	public async Task<List<Order>> GetAllOrdersAsync()
+	public override async Task<List<Order>> GetAllAsync()
 	{
 		var orders = await _context.Orders
 			.Include(o => o.Customer)
+			.Include(o => o.OrderItem)
 			.ToListAsync();
 
 		return orders;
 	}
 
-	public async Task<Order?> GetOrderByIdAsync(int id)
+	public override async Task<Order?> GetByIdAsync(int id)
 	{
 		var order = await _context.Orders
 			.Include(o => o.Customer)
@@ -31,15 +32,4 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
 
 		return order;
 	}
-
-	public override async Task<List<Order>> GetAllAsync()
-	{
-		return await GetAllOrdersAsync();
-	}
-
-	public override async Task<Order?> GetByIdAsync(int id)
-	{
-		return await GetOrderByIdAsync(id);
-	}
-
 }

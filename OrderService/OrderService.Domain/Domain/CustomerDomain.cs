@@ -35,7 +35,7 @@ public class CustomerDomain : ICustomerDomain
 	{
 		var customer = customerRequest.ToCustomer();
 
-		_customerRepository.AddAsync(customer);
+		_customerRepository.Add(customer);
 		await _unitOfWork.SaveAsync();
 
 		return customer.ToResponse();
@@ -60,7 +60,7 @@ public class CustomerDomain : ICustomerDomain
 		var customer = await _customerRepository.GetByIdAsync(id);
 		if (customer == null) throw new NotFoundException("Customer not found");
 
-		await _customerRepository.DeleteAsync(id);
+		_customerRepository.DeleteAsync(customer);
 		await _unitOfWork.SaveAsync();
 
 		return true;

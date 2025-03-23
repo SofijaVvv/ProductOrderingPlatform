@@ -32,12 +32,8 @@ public class OrderItemDomain : IOrderItemDomain
 		var orderItems = await _orderItemRepository.GetAllAsync();
 		var productIds = orderItems.Select(oi => oi.ProductId).Distinct().ToList();
 
-		var productMapping = new Dictionary<string, ProductDto>();
-		foreach (var productId in productIds)
-		{
-			var product = await _productService.GetProductByIdAsync(productId);
-			if (product != null) productMapping[productId] = product;
-		}
+		var products = await _productService.GetProductsByIdsAsync(productIds);
+		var productMapping = products.ToDictionary(p => p.Id, p => p);
 
 		return orderItems.ToResponse(productMapping);
 	}
@@ -78,7 +74,7 @@ public class OrderItemDomain : IOrderItemDomain
 			Category = product.Category
 		});
 
-		_orderItemRepository.AddAsync(orderItem);
+		_orderItemRepository.Add(orderItem);
 
 		await _unitOfWork.SaveAsync();
 
@@ -110,7 +106,7 @@ public class OrderItemDomain : IOrderItemDomain
 		var orderItem = await _orderItemRepository.GetByIdAsync(id);
 		if (orderItem == null) throw new Exception("orderItem not found");
 
-		await _orderItemRepository.DeleteAsync(id);
+		_orderItemRepository.DeleteAsync(orderItem);
 		await _unitOfWork.SaveAsync();
 
 		return true;

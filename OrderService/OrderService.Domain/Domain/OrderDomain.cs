@@ -34,13 +34,13 @@ public class OrderDomain : IOrderDomain
 	public async Task<List<OrderResponse>> GetAllAsync()
 	{
 		var orders = await _orderRepository.GetAllAsync();
-		var totalAmounts = new Dictionary<int, decimal>();
 
-		foreach (var order in orders)
-		{
-			var totalAmount = await CalculateTotalAmount(order.Id);
-			totalAmounts[order.Id] = totalAmount;
-		}
+		var productIds = orders.SelectMany(o => o.OrderItem.Select(oi => oi.ProductId)).Distinct().ToList();
+
+		var products = await _productService.GetProductsByIdsAsync(productIds);
+		var productDict = products.ToDictionary(p => int.Parse(p.Id), p => p.Price);
+
+		var totalAmounts = orders.ToDictionary(order => order.Id, order => CalculateTotalAmount(order, productDict));
 
 		return orders.ToResponse(totalAmounts);
 	}
@@ -50,10 +50,10 @@ public class OrderDomain : IOrderDomain
 		var order = await _orderRepository.GetByIdAsync(id);
 		if (order == null) throw new NotFoundException("Order not found");
 
-		var totalAmount = await CalculateTotalAmount(order.Id);
-		var orderResponse = order.ToResponse(totalAmount);
+		var productDict = await GetProductDictionaryByOrderIdAsync(order.Id);
 
-		return orderResponse;
+		var totalAmount = CalculateTotalAmount(order, productDict);
+		return order.ToResponse(totalAmount);
 	}
 
 	public async Task<OrderPaymentResponse> PayOrderAsync(OrderPaymentRequest request)
@@ -61,7 +61,9 @@ public class OrderDomain : IOrderDomain
 		var order = await _orderRepository.GetByIdAsync(request.OrderId);
 		if (order == null) throw new Exception("Order not found");
 
-		var totalAmount = await CalculateTotalAmount(order.Id);
+		var productDict = await GetProductDictionaryByOrderIdAsync(order.Id);
+
+		var totalAmount = CalculateTotalAmount(order, productDict);
 		var orderResponse = order.ToResponse(totalAmount);
 
 		var paymentDto = new PaymentDto
@@ -83,10 +85,12 @@ public class OrderDomain : IOrderDomain
 		var order = orderRequest.ToOrder();
 		order.CreatedAt = DateTime.UtcNow;
 
-		_orderRepository.AddAsync(order);
+		_orderRepository.Add(order);
 		await _unitOfWork.SaveAsync();
 
-		var totalAmount = await CalculateTotalAmount(order.Id);
+		var productDict = await GetProductDictionaryByOrderIdAsync(order.Id);
+
+		var totalAmount = CalculateTotalAmount(order, productDict);
 		var orderResponse = order.ToResponse(totalAmount);
 
 		return orderResponse;
@@ -109,23 +113,26 @@ public class OrderDomain : IOrderDomain
 		var order = await _orderRepository.GetByIdAsync(id);
 		if (order == null) throw new Exception("Order not found");
 
-		await _orderRepository.DeleteAsync(id);
+		_orderRepository.DeleteAsync(order);
 		await _unitOfWork.SaveAsync();
 
 		return true;
 	}
 
-	private async Task<decimal> CalculateTotalAmount(int orderId)
+	private async Task<Dictionary<int, decimal>> GetProductDictionaryByOrderIdAsync(int orderId)
 	{
 		var orderItems = await _orderItemRepository.GetByOrderIdAsync(orderId);
 		var productIds = orderItems.Select(oi => oi.ProductId).Distinct().ToList();
-
 		var products = await _productService.GetProductsByIdsAsync(productIds);
-		var productDict = products.ToDictionary(p => p.Id, p => p.Price);
+		return products.ToDictionary(p => int.Parse(p.Id), p => p.Price);
+	}
 
+	private decimal CalculateTotalAmount(Order order, Dictionary<int, decimal> productDict)
+	{
 		decimal totalAmount = 0;
-		foreach (var orderItem in orderItems)
-			if (productDict.TryGetValue(orderItem.ProductId, out var price))
+
+		foreach (var orderItem in order.OrderItem)
+			if (productDict.TryGetValue(int.Parse(orderItem.ProductId), out var price))
 				totalAmount += orderItem.Quantity * price;
 
 		return totalAmount;
