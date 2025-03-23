@@ -1,7 +1,7 @@
 # Product Ordering Platform
 
 ## Description
-ProductOrderingPlatform is a personal project disigned using a microservice archetecture. Built with **.NET**, **MongoDB**, **MySQL**, **Stripe**, and **RabbitMQ**, this platform functions like an e-commerce application.
+ProductOrderingPlatform is a personal project designed using a microservice architecture. Built with **.NET**, **MongoDB**, **MySQL**, **Stripe**, and **RabbitMQ**, this platform functions like an e-commerce application.
 **It's composed of three microservices:**
 - **Orders Service:**  Handles the creation, processing, and management of orders.
 - **Payments Service:** Handles payment transactions and integrates with Stripe for payment mocking.
