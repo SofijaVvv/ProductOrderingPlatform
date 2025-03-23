@@ -23,15 +23,6 @@ public class OrderItemRepository : GenericRepository<OrderItem>, IOrderItemRepos
 		return orderItems;
 	}
 
-	public async Task<OrderItem?> GetOrderItemByIdAsync(int id)
-	{
-		var orderItem = await _context.OrderItems
-			.Include(o => o.Order)
-			.FirstOrDefaultAsync(o => o.Id == id);
-
-		return orderItem;
-	}
-
 	public async Task<List<OrderItem>> GetByOrderIdAsync(int orderId)
 	{
 		return await _context.OrderItems
@@ -46,6 +37,10 @@ public class OrderItemRepository : GenericRepository<OrderItem>, IOrderItemRepos
 
 	public override async Task<OrderItem?> GetByIdAsync(int id)
 	{
-		return await GetOrderItemByIdAsync(id);
+		var orderItem = await _context.OrderItems
+			.Include(o => o.Order)
+			.FirstOrDefaultAsync(o => o.Id == id);
+
+		return orderItem;
 	}
 }
